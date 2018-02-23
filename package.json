@@ -1,0 +1,24 @@
+{
+  "name": "point_shogi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build_client": "webpack --config client/webpack.config.js",
+    "web": "webpack-dev-server --config client/webpack.config.js",
+    "build_client_watch": "webpack --watch --config client/webpack.config.js",
+    "build_server": "webpack --config server/webpack.config.js",
+    "build_server_watch": "webpack --watch --config server/webpack.config.js",
+    "server": "node server/build/server.js"
+  },
+  "author": "iwamoto",
+  "license": "ISC",
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.4.1",
+    "source-map-loader": "^0.2.3",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.1",
+    "webpack": "^3.11.0",
+    "webpack-dev-server": "^2.11.1"
+  }
+}

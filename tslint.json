@@ -1,0 +1,52 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+    ],
+    "jsRules": {},
+    "rules": {
+      "semicolon": true,
+      "no-var-keyword": true,
+      "arrow-parens": true,
+      "class-name": true,
+      "max-file-line-count": [true, 1000],
+      "member-access": true,
+      "member-ordering": [
+        true,
+        {
+          "order": [
+            "static-field",
+            "instance-field",
+            "constructor",
+            "public-instance-method",
+            "protected-instance-method",
+            "private-instance-method"
+          ]
+        }
+      ],
+      "no-arg": true,
+      "no-conditional-assignment": true,
+      "no-construct": true,
+      "no-duplicate-variable": true,
+      "no-shadowed-variable": true,
+      "no-empty": true,
+      "no-eval": true,
+      "no-internal-module": true,
+      "no-switch-case-fall-through": true,
+      "no-unused-expression": true,
+      "no-var-requires": true,
+      "quotemark": [true, "double"],
+      "typedef": [
+        true,
+        "call-signature",
+        "parameter",
+        "member-variable-declaration",
+        "object-destructuring"
+      ],
+      "variable-name": [
+        true,
+        "allow-leading-underscore",
+        "allow-trailing-underscore"
+      ]
+    },
+    "rulesDirectory": []
+}
