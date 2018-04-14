@@ -3,7 +3,9 @@ import PiecePosition from "../../../lib/data/PiecePosition";
 import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
 import EngineResponseData from "../../../lib/data/EngineResponseData";
 import Move from "../../../lib/data/Move";
-import EngineData from "./EngineData";
+import EngineData from "../data/EngineData";
+import EngineCommand from "../../../lib/data/EngineCommand";
+import EngineOption from "../../../lib/data/EngineOption";
 
 export default class EngineController {
     //TODO:パラメータ化
@@ -27,13 +29,12 @@ export default class EngineController {
      * @param {number} commandValue
      * @returns {Promise<EngineResponseData>}
      */
-     public async exec(position: PiecePosition, commandType: EngineCommandType, commandValue: number): Promise<EngineResponseData> {
-         let engine: Engine = await this.getEnableEngine();
+     public async exec(position: PiecePosition, command: EngineCommand, option: EngineOption): Promise<EngineResponseData> {
+         const engine: Engine = await this.getEnableEngine();
          if(!engine) return null;
-         let command: string = `${EngineCommandType[commandType]} ${commandValue}`;
-         console.log(position.toSfen());
-         let data: EngineData = await engine.exec(position.toSfen(), command);
-         let bestMove: Move = data.bestMove ? position.sfenToMove(data.bestMove) : null;
+         const commandStr: string = `${EngineCommandType[command.type]} ${command.value}`;
+         const data: EngineData = await engine.exec(position.toSfen(), commandStr, option.toEngineValue());
+         const bestMove: Move = data.bestMove ? position.sfenToMove(data.bestMove) : null;
          return new EngineResponseData(data.status, data.evaluation, bestMove, data.isResign, data.isNyugyoku);
     }
 
@@ -46,7 +47,7 @@ export default class EngineController {
             if(engine.isEnable) return engine;
         }
         if(this.engines.length < EngineController.ENGINE_MAX_SIZE){
-            let engine: Engine = new Engine();
+            const engine: Engine = new Engine();
             await engine.initialize();
             this.engines.push(engine);
             return this.engines[this.engines.length - 1];

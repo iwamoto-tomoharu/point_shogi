@@ -4,8 +4,10 @@ import Move from "./Move";
 import Vector from "./Vector";
 import PieceType from "./enum/PieceType";
 import ShogiUtility from "../utility/ShogiUtility";
+import Data from "./Data";
+import Json from "./api/Json";
 
-export default class PiecePosition {
+export default class PiecePosition extends Data {
     private static readonly SFEN_HAVE_PIECE_MAP: {[key: string]: PieceType} = {
         "P": PieceType.fu,
         "L": PieceType.kyo,
@@ -38,6 +40,7 @@ export default class PiecePosition {
         private _havePieces: HavePiece[] = [],
         private _isTurnSente: boolean = true,
     ) {
+        super();
         this._position = _position || this.initPosition();
     }
 
@@ -58,24 +61,23 @@ export default class PiecePosition {
         return this._isTurnSente;
     }
 
+    /**
+     * 一手局面を進める
+     * @param {Move} move
+     * @returns {PiecePosition}
+     */
+    public next(move: Move): PiecePosition {
+        this.move(move);
+        this._isTurnSente = !move.piece.isSente;
+        return this;
+    }
+
     /***
      /* 現局面から指定した指し手を進めた局面を取得
      /*/
     public getNextPosition(move: Move): PiecePosition {
-        //動かす駒があるか
-
-        //動かす先に自分の駒がないか
-
-        let nextPos: PiecePosition = this.copy();
-        //異動先に駒がある場合は持ち駒にする
-        let nextOppPiece: Piece = nextPos.getPiece(move.toX, move.toY);
-        if(nextOppPiece != null) {
-            nextPos.setHavePiece(new Piece(ShogiUtility.getNariToNormalPiece(nextOppPiece.type), !nextOppPiece.isSente));
-        }
-        nextPos.delPiece(move.fromX, move.fromY, move.piece);
-        nextPos.setPiece(move.toX, move.toY, move.piece);
-
-        return nextPos;
+        const nextPos: PiecePosition = this.copy();
+        return nextPos.next(move);
     }
 
     /**
@@ -84,14 +86,14 @@ export default class PiecePosition {
      * @returns {PiecePosition}
      */
     public getReverse(): PiecePosition {
-        let revPieces: Piece[][] = this.initPosition();
+        const revPieces: Piece[][] = this.initPosition();
         for(let x = 0; x < this._position.length; x++){
             for(let y = 0; y < this.position[x].length; y++){
                 revPieces[8 - x][8 - y] = this._position[x][y] != null ?
                     new Piece(this._position[x][y].type, !this._position[x][y].isSente) : null;
             }
         }
-        let revHavePieces: HavePiece[] = [];
+        const revHavePieces: HavePiece[] = [];
         for(let havePiece of this._havePieces) {
             revHavePieces.push(new HavePiece(havePiece.type, !havePiece.isSente, havePiece.num));
         }
@@ -105,7 +107,7 @@ export default class PiecePosition {
      * @returns {Vector[]}
      */
     public getPiecesXY(piece: Piece): Vector[] {
-        let detectVectors: Vector[] = [];
+        const detectVectors: Vector[] = [];
         for(let x = 0; x < this._position.length; x++){
             for(let y = 0; y < this.position[x].length; y++){
                 if(this._position[x][y] == null) continue;
@@ -123,7 +125,7 @@ export default class PiecePosition {
      * @returns {string}
      */
     public toSfen(ply: number = 1): string {
-        let color: string = this._isTurnSente ? "b" : "w";
+        const color: string = this._isTurnSente ? "b" : "w";
         return `${this.toSfenBoard()} ${color} ${this.toSfenHave()} ${ply}`;
     }
 
@@ -137,20 +139,20 @@ export default class PiecePosition {
         for(let key in PiecePosition.SFEN_HAVE_PIECE_MAP) {
             sfenPieces += key;
         }
-        let check = new RegExp(`(([1-9][a-i])|([${sfenPieces}][\*]))[1-9][a-i]`);
+        const check = new RegExp(`(([1-9][a-i])|([${sfenPieces}][\*]))[1-9][a-i]`);
         if(!check.test(sfen)) throw new Error(`invalid param ${sfen}`);
 
-        let charAry: string[] = sfen.split("");
-        let beforeACharCode: number = "a".charCodeAt(0) - 1;
+        const charAry: string[] = sfen.split("");
+        const beforeACharCode: number = "a".charCodeAt(0) - 1;
         let piece: Piece;
         let fromX: number;
         let fromY: number;
-        let toX: number = Number(charAry[2]);
-        let toY: number = charAry[3].charCodeAt(0) - beforeACharCode;
-        let isHavePieceMove: boolean = charAry[1] == "*";
+        const toX: number = Number(charAry[2]);
+        const toY: number = charAry[3].charCodeAt(0) - beforeACharCode;
+        const isHavePieceMove: boolean = charAry[1] == "*";
         if(isHavePieceMove) {
-            let pieceStr: string = charAry[0];
-            let pieceType: PieceType = PiecePosition.SFEN_HAVE_PIECE_MAP[pieceStr];
+            const pieceStr: string = charAry[0];
+            const pieceType: PieceType = PiecePosition.SFEN_HAVE_PIECE_MAP[pieceStr];
             piece = new Piece(pieceType, this.isTurnSente);
             fromX = 0;
             fromY = 0;
@@ -165,37 +167,55 @@ export default class PiecePosition {
     }
 
     /**
-     * Objectに変換
+     * Jsonに変換
      * JSON.stringifyで使用される
-     * @returns {{[p: string]: any}}
+     * @returns {Json}
      */
-    public toJSON(): {[key: string]: any} {
+    public toJSON(): Json {
         return {
-            position: this.toPostionJSON(),
-            havePieces: this.toHavePiecesJSON(),
-            isTurnSente: this._isTurnSente
+            _position: this.toPostionJSON(),
+            _havePieces: this.toHavePiecesJSON(),
+            _isTurnSente: this._isTurnSente
         };
     }
 
     /**
-     * ObjectをPiecePositionに変換
-     * @param {{[p: string]: any}} obj
+     * JsonをPiecePositionに変換
+     * @param {Json} obj
      * @returns {PiecePosition}
      */
-    public static fromJSON(obj: {[key: string]: any}): PiecePosition {
+    public static fromJSON(obj: Json): PiecePosition {
         return new PiecePosition(
-            this.fromJSONtoPosition(obj.position),
-            this.fromJSONtoHavePieces(obj.havePieces),
-            obj.isTurnSente);
+            this.fromJSONtoPosition(obj._position),
+            this.fromJSONtoHavePieces(obj._havePieces),
+            obj._isTurnSente);
+    }
+
+    /**
+     * 駒の移動
+     * @param {Move} move
+     */
+    private move(move: Move): void {
+        //TODO:動かす駒があるか
+
+        //TODO:動かす先に自分の駒がないか
+
+        //異動先に駒がある場合は持ち駒にする
+        const nextOppPiece: Piece = this.getPiece(move.toX, move.toY);
+        if(nextOppPiece != null) {
+            this.setHavePiece(new Piece(ShogiUtility.getNariToNormalPiece(nextOppPiece.type), !nextOppPiece.isSente));
+        }
+        this.delPiece(move.fromX, move.fromY, move.piece);
+        this.setPiece(move.toX, move.toY, move.piece);
     }
 
 
     /**
      * positionをJSONに変換
-     * @returns {{[p: string]: any}[][]}
+     * @returns {Json[][]}
      */
-    private toPostionJSON(): {[key: string]: any}[][] {
-        let posObj = new Array(9);
+    private toPostionJSON(): Json[][] {
+        const posObj = new Array(9);
         for(let x = 0; x < 9; x++) {
             posObj[x] = new Array(9);
             for(let y = 0; y < 9; y++) {
@@ -207,15 +227,15 @@ export default class PiecePosition {
 
     /**
      * JSONをpositionに変換
-     * @param {{[p: string]: any}[][]} posObj
+     * @param {Json[][]} posObj
      * @returns {Piece[][]}
      */
-    private static fromJSONtoPosition(posObj: {[key: string]: any}[][]): Piece[][] {
-        let position: Piece[][] = new Array(9);
+    private static fromJSONtoPosition(posObj: Json[][]): Piece[][] {
+        const position: Piece[][] = new Array(9);
         for(let x = 0; x < 9; x++) {
             position[x] = new Array(9);
             for(let y = 0; y < 9; y++) {
-                position[x][y] = posObj[x][y] ? new Piece(posObj[x][y].type, posObj[x][y].isSente) : null;
+                position[x][y] = posObj[x][y] ? new Piece(posObj[x][y]._type, posObj[x][y]._isSente) : null;
             }
         }
         return position;
@@ -223,10 +243,10 @@ export default class PiecePosition {
 
     /**
      * havePiecesをJSONに変換
-     * @returns {{[p: string]: any}[]}
+     * @returns {Json[]}
      */
-    private toHavePiecesJSON(): {[key: string]: any}[] {
-        let havePiecesObj = [];
+    private toHavePiecesJSON(): Json[] {
+        const havePiecesObj = [];
         for(let havePiece of this._havePieces) {
             havePiecesObj.push(havePiece.toJSON());
         }
@@ -235,11 +255,11 @@ export default class PiecePosition {
 
     /**
      * JSONをhavePiecesに変換
-     * @param {{[p: string]: any}[]} havePiecesObj
+     * @param {Json[]} havePiecesObj
      * @returns {HavePiece[]}
      */
-    private static fromJSONtoHavePieces(havePiecesObj: {[key: string]: any}[]): HavePiece[] {
-        let havePieces: HavePiece[] = [];
+    private static fromJSONtoHavePieces(havePiecesObj: Json[]): HavePiece[] {
+        const havePieces: HavePiece[] = [];
         for(let havePieceObj of havePiecesObj) {
             havePieces.push(new HavePiece(havePieceObj.type, havePieceObj.isSente, havePieceObj.num));
         }
@@ -251,16 +271,16 @@ export default class PiecePosition {
      * @returns {PiecePosition}
      */
     private copy(): PiecePosition {
-        let cpyPieces: Piece[][] = this.initPosition();
+        const cpyPieces: Piece[][] = this.initPosition();
         for(let x = 0; x < this._position.length; x++){
             for(let y = 0; y < this._position[x].length; y++){
-                let piece: Piece = this._position[x][y];
+                const piece: Piece = this._position[x][y];
                 cpyPieces[x][y] = piece != null ? new Piece(piece.type, piece.isSente) : null;
             }
         }
-        let cpyHavePieces: HavePiece[] = [];
+        const cpyHavePieces: HavePiece[] = [];
         for(let havePiece of this._havePieces) {
-            let cpyHavePiece: HavePiece = new HavePiece(havePiece.type, havePiece.isSente, havePiece.num);
+            const cpyHavePiece: HavePiece = new HavePiece(havePiece.type, havePiece.isSente, havePiece.num);
             cpyHavePieces.push(cpyHavePiece);
         }
         return new PiecePosition(cpyPieces, cpyHavePieces, this._isTurnSente);
@@ -271,7 +291,7 @@ export default class PiecePosition {
      * @returns {string}
      */
     private toSfenBoard(): string {
-        let sfens: string[] = [];
+        const sfens: string[] = [];
         for(let y = 0; y <= 8; y++) {
             let sfen: string = "";
             let emptyCount: number = 0;
@@ -299,8 +319,8 @@ export default class PiecePosition {
         let goteSfen: string = "";
         for(let havePiece of this._havePieces) {
             if(havePiece.num == 0) continue;
-            let numStr: string = havePiece.num == 1 ? "" : havePiece.num.toString();
-            let pieceStr: string = `${numStr}${this.toSfenPiece(havePiece)}`;
+            const numStr: string = havePiece.num == 1 ? "" : havePiece.num.toString();
+            const pieceStr: string = `${numStr}${this.toSfenPiece(havePiece)}`;
             if(havePiece.isSente) {
                 senteSfen += pieceStr;
             }else {
@@ -318,7 +338,7 @@ export default class PiecePosition {
      * @returns {string}
      */
     private toSfenPiece(piece: Piece): string {
-        let pieceSfen: string = PiecePosition.TO_SFEN_PIECE_MAP[piece.type];
+        const pieceSfen: string = PiecePosition.TO_SFEN_PIECE_MAP[piece.type];
         return piece.isSente ? pieceSfen.toUpperCase() : pieceSfen;
     }
 
@@ -383,7 +403,7 @@ export default class PiecePosition {
      * @returns {Piece[][]}
      */
     private initPosition(): Piece[][] {
-        let position: Piece[][] = new Array(9);
+        const position: Piece[][] = new Array(9);
         for(let i = 0; i < position.length; i++) {
             position[i] = new Array(9);
             position[i] = position[i].map((val) => null);

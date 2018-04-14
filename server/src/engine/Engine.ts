@@ -1,6 +1,6 @@
 import * as ChildProcess from "child_process";
-import Utility from "../../../lib/Utility";
-import EngineData from "./EngineData";
+import Utility from "../../../lib/utility/Utility";
+import EngineData from "../data/EngineData";
 
 export default class Engine {
 
@@ -38,7 +38,7 @@ export default class Engine {
     /**
      * エンジン初期化処理
      */
-    public initialize(): Promise<any> {
+    public initialize(): Promise<null> {
         return new Promise(
             (resolve: () => void, reject: (err: any) => void) => {
                 try {
@@ -54,18 +54,21 @@ export default class Engine {
             }
         );
     }
-
     /**
      * エンジン実行
      * @returns {boolean}
      */
-    public exec(sfen: string, command: string): Promise<EngineData> {
+    public exec(sfen: string, command: string, options: {[key: string]: string}): Promise<EngineData> {
         return new Promise((resolve: (data: EngineData) => void, reject: (err: any) => void) => {
+            if(!this._isEnable) {
+                resolve({status: false});
+                return;
+            }
             try {
-                if(!this._isEnable) {
-                    resolve({status: false});
-                    return;
+                for(let key in options) {
+                    this.send(`setoption name ${key} value ${options[key]}`);
                 }
+
                 this.receiveListener = resolve;
                 this.send(`position sfen ${sfen} moves`);
                 this.send(`go ${command}`);
@@ -90,10 +93,10 @@ export default class Engine {
      */
     private onData(data: string): void {
         console.debug(`[engine -> server] ${data}`);
-        let recStrs: string[] = data.toString().split("\n");
+        const recStrs: string[] = data.toString().split("\n");
         for(let recStr of recStrs){
             for(let regExpListener of this.regExpListeners) {
-                let recAry = recStr.match(regExpListener.regExp);
+                const recAry = recStr.match(regExpListener.regExp);
                 if(!recAry) continue;
                 console.debug(`match:${recStr}`);
                 regExpListener.listener(recAry);
@@ -160,8 +163,8 @@ export default class Engine {
      */
     private onDataMate(recAry: RegExpMatchArray): void {
         if(recAry[1]) {
-            let mateVal: number = Number(recAry[1]);
-            let evaluation: number = mateVal >= 0 ? Engine.EVAL_MAX : Engine.EVAL_MIN;
+            const mateVal: number = Number(recAry[1]);
+            const evaluation: number = mateVal >= 0 ? Engine.EVAL_MAX : Engine.EVAL_MIN;
             this.callReceiveListener({status: true, evaluation: evaluation});
         } else {
             this.callReceiveListener({status: false});
@@ -193,7 +196,7 @@ export default class Engine {
      */
     private onDataBestMove(recAry: RegExpMatchArray): void {
         if(recAry[1] && this.evaluation != null) {
-            let bestMove: string = recAry[1].split(" ")[0];
+            const bestMove: string = recAry[1].split(" ")[0];
             this.callReceiveListener({status: true, evaluation: this.evaluation, bestMove: bestMove});
             this.evaluation = null;
         } else {

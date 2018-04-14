@@ -1,7 +1,10 @@
 import PieceType from "./enum/PieceType";
+import Data from "./Data";
+import Json from "./api/Json";
 
-export default class Piece {
+export default class Piece extends Data {
     constructor(private _type:PieceType, private _isSente: boolean) {
+        super();
     }
 
     get type(): PieceType {
@@ -13,24 +16,21 @@ export default class Piece {
     }
 
     /**
-     * JSONに変換
-     * JSON.stringifyで使用される
-     * @returns {{[p: string]: any}}
+     * 同じPieceであるか
+     * @param {Piece} piece
+     * @returns {boolean}
      */
-    public toJSON(): {[key: string]: any} {
-        return {
-            type: this._type,
-            isSente: this._isSente
-        };
+    public equal(piece: Piece): boolean {
+        return this._type === piece._type && this.isSente && piece.isSente;
     }
 
     /**
      * JSONをPieceに変換
-     * @param {{[p: string]: any}} obj
+     * @param {Json} obj
      * @returns {Piece}
      */
-    public static fromJSON(obj: {[key: string]: any}): Piece {
-        return new Piece(obj.type, obj.isSente);
+    public static fromJSON(obj: Json): Piece {
+        return new Piece(obj._type, obj._isSente);
     }
 
 }

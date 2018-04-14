@@ -5,10 +5,10 @@ class Main {
     public static start(): void {
         const port = 8081;
         const wss: WebSocket.Server = new WebSocket.Server({port: port});
-        let connections: AnalysisTransceiver[] = [];
+        const connections: AnalysisTransceiver[] = [];
         wss.on("connection", (ws: WebSocket) => {
-            let connection = new AnalysisTransceiver(ws, () => {
-                let pos = connections.indexOf(connection);
+            const connection = new AnalysisTransceiver(ws, () => {
+                const pos = connections.indexOf(connection);
                 if(pos !== -1) connections.splice(pos, 1);
             });
             connections.push(connection);

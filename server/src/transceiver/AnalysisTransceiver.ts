@@ -1,30 +1,28 @@
 import WebSocketTransceiver from "./WebSocketTransceiver";
 import EngineController from "../engine/EngineController";
 import EngineResponseData from "../../../lib/data/EngineResponseData";
-import AnalysisRequestData from "../../../lib/data/AnalysisRequestData";
-import AnalysisResponseData from "../../../lib/data/AnalysisResponseData";
+import AnalysisRequestData from "../../../lib/data/api/AnalysisRequestData";
+import AnalysisResponseData from "../../../lib/data/api/AnalysisResponseData";
 
 export default class AnalysisTransceiver extends WebSocketTransceiver {
     protected onReceive(message: string): void {
         super.onReceive(message);
-        try {
-            let messageObj = JSON.parse(message);
-            let receiveData: AnalysisRequestData = AnalysisRequestData.fromJSON(messageObj);
-            //エンジン実行
-            EngineController.instance().exec(receiveData.piecePosition,
-                receiveData.engineCommandType, receiveData.engineCommandValue).then(
-                (data: EngineResponseData) => {
-                    let sendData: AnalysisResponseData = new AnalysisResponseData(data);
-                    //エンジン解析結果をクライアントに送信
-                    let sendStr: string = JSON.stringify(sendData.toJSON());
-                    this.send(sendStr);
-                }
-            ).catch((err: Error) => {
+        const messageObj = JSON.parse(message);
+        const receiveData: AnalysisRequestData = AnalysisRequestData.fromJSON(messageObj);
+        //エンジン実行
+        (async () => {
+            try {
+                const data: EngineResponseData = await EngineController.instance()
+                    .exec(receiveData.piecePosition, receiveData.engineCommand, receiveData.engineOption);
+                const sendData: AnalysisResponseData = new AnalysisResponseData(data);
+                //エンジン解析結果をクライアントに送信
+                const sendStr: string = JSON.stringify(sendData.toJSON());
+                this.send(sendStr);
+            } catch (err) {
                 console.error(err);
-            });
-        } catch (err) {
-            console.error(err);
-        }
+            }
+
+        })();
     }
 
 }

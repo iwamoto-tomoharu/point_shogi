@@ -1,5 +1,6 @@
 import Piece from "./Piece";
 import PieceType from "./enum/PieceType";
+import Json from "./api/Json";
 
 export default class HavePiece extends Piece {
     constructor(pieceType: PieceType, isSente: boolean, private _num: number = 0) {
@@ -17,23 +18,12 @@ export default class HavePiece extends Piece {
     }
 
     /**
-     * JSONに変換
-     * JSON.stringifyで使用される
-     * @returns {{[p: string]: any}}
-     */
-    public toJSON(): {[key: string]: any} {
-        let obj = super.toJSON();
-        obj.num = this._num;
-        return obj;
-    }
-
-    /**
      * JSONをHavePieceに変換
-     * @param {{[p: string]: any}} obj
+     * @param {Json} obj
      * @returns {HavePiece}
      */
-    public static fromJSON(obj: {[key: string]: any}): HavePiece {
-        let piece: Piece = super.fromJSON(obj);
-        return new HavePiece(piece.type, piece.isSente, obj.num);
+    public static fromJSON(obj: Json): HavePiece {
+        const piece: Piece = super.fromJSON(obj);
+        return new HavePiece(piece.type, piece.isSente, obj._num);
     }
 }
