@@ -1,12 +1,14 @@
-import Data from "./Data";
 import Piece from "./Piece";
+import PieceType from "./enum/PieceType";
 
-export default class BoardPiece extends Data {
+export default class BoardPiece extends Piece {
     constructor(
+        type:PieceType,
+        isSente: boolean,
         private _x: number, //1〜9
         private _y: number, //1〜9
-        private _piece: Piece) {
-        super();
+        ) {
+        super(type, isSente);
     }
 
     get x(): number {
@@ -17,7 +19,14 @@ export default class BoardPiece extends Data {
         return this._y;
     }
 
-    get piece(): Piece {
-        return this._piece;
+    /**
+     * 同じBoardPieceか
+     * @param {BoardPiece} piece
+     * @returns {boolean}
+     */
+    public equal(piece: BoardPiece): boolean {
+        if(!piece) return false;
+        return super.equal(piece) && this._x === piece.x && this._y === piece.y;
     }
+
 }

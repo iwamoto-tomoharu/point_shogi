@@ -7,6 +7,16 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.scss$/,
+                use: [{
+                    loader: "style-loader"
+                }, {
+                    loader: "typings-for-css-modules-loader?modules&namedExport&camelCase"
+                }, {
+                    loader: "sass-loader"
+                }]
+            },
+            {
                 test: /\.tsx?$/,
                 loader: "awesome-typescript-loader",
                 options: {
@@ -18,30 +28,17 @@ module.exports = {
                 test: /\.jsx?$/,
                 loader: "source-map-loader"
             },
-            {
-                test: /\.scss$/,
-                use: [{
-                    loader: "style-loader"
-                }, {
-                    loader: "typings-for-css-modules-loader?modules&namedExport&camelCase"
-                }, {
-                    loader: "sass-loader"
-                }]
-            },
         ]
     },
     resolve: {
         extensions: [
-            ".ts", ".tsx", ".js", ".css"
+            ".ts", ".tsx", ".js", ".scss"
         ]
     },
     cache: true,
     devServer: {
         contentBase: `${__dirname}/public`,
         port: 8080,
-    },
-    externals: {
-        "createjs": true,
     },
     devtool: "source-map"
 }

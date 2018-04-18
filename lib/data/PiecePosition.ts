@@ -1,5 +1,5 @@
 import Piece from "./Piece";
-import HavePiece from "./HavePiece";
+import CapturedPiece from "./CapturedPiece";
 import Move from "./Move";
 import Vector from "./Vector";
 import PieceType from "./enum/PieceType";
@@ -37,7 +37,7 @@ export default class PiecePosition extends Data {
 
     constructor(
         private _position: Piece[][] = null,
-        private _havePieces: HavePiece[] = [],
+        private _capturedPieces: CapturedPiece[] = [],
         private _isTurnSente: boolean = true,
     ) {
         super();
@@ -53,8 +53,8 @@ export default class PiecePosition extends Data {
         return this._position;
     }
 
-    get havePieces(): HavePiece[] {
-        return this._havePieces;
+    get capturedPieces(): CapturedPiece[] {
+        return this._capturedPieces;
     }
 
     get isTurnSente(): boolean {
@@ -93,9 +93,9 @@ export default class PiecePosition extends Data {
                     new Piece(this._position[x][y].type, !this._position[x][y].isSente) : null;
             }
         }
-        const revHavePieces: HavePiece[] = [];
-        for(let havePiece of this._havePieces) {
-            revHavePieces.push(new HavePiece(havePiece.type, !havePiece.isSente, havePiece.num));
+        const revHavePieces: CapturedPiece[] = [];
+        for(let capturedPiece of this._capturedPieces) {
+            revHavePieces.push(new CapturedPiece(capturedPiece.type, !capturedPiece.isSente, capturedPiece.num));
         }
 
         return new PiecePosition(revPieces, revHavePieces, !this._isTurnSente);
@@ -139,7 +139,7 @@ export default class PiecePosition extends Data {
         for(let key in PiecePosition.SFEN_HAVE_PIECE_MAP) {
             sfenPieces += key;
         }
-        const check = new RegExp(`(([1-9][a-i])|([${sfenPieces}][\*]))[1-9][a-i]`);
+        const check = new RegExp(`(([1-9][a-i])|([${sfenPieces}][\\*]))[1-9][a-i]\\+*`);
         if(!check.test(sfen)) throw new Error(`invalid param ${sfen}`);
 
         const charAry: string[] = sfen.split("");
@@ -150,6 +150,7 @@ export default class PiecePosition extends Data {
         const toX: number = Number(charAry[2]);
         const toY: number = charAry[3].charCodeAt(0) - beforeACharCode;
         const isHavePieceMove: boolean = charAry[1] == "*";
+        const isNari: boolean = charAry[4] === "+";
         if(isHavePieceMove) {
             const pieceStr: string = charAry[0];
             const pieceType: PieceType = PiecePosition.SFEN_HAVE_PIECE_MAP[pieceStr];
@@ -160,8 +161,8 @@ export default class PiecePosition extends Data {
             fromX = Number(charAry[0]);
             fromY = charAry[1].charCodeAt(0) - beforeACharCode;
             piece = this.getPiece(fromX, fromY);
-            console.log(`fromX:${fromX} fromY:${fromY}`);
-            if(piece == null) throw new Error(`invalid move from ${sfen}`);
+            if(isNari) piece = new Piece(ShogiUtility.nariMap()[piece.type], piece.isSente);
+            if(piece === null) throw new Error(`invalid move from ${sfen}`);
         }
         return new Move(fromX, fromY, toX, toY, piece);
     }
@@ -174,7 +175,7 @@ export default class PiecePosition extends Data {
     public toJSON(): Json {
         return {
             _position: this.toPostionJSON(),
-            _havePieces: this.toHavePiecesJSON(),
+            _capturedPieces: this.toHavePiecesJSON(),
             _isTurnSente: this._isTurnSente
         };
     }
@@ -187,7 +188,7 @@ export default class PiecePosition extends Data {
     public static fromJSON(obj: Json): PiecePosition {
         return new PiecePosition(
             this.fromJSONtoPosition(obj._position),
-            this.fromJSONtoHavePieces(obj._havePieces),
+            this.fromJSONtoHavePieces(obj._capturedPieces),
             obj._isTurnSente);
     }
 
@@ -242,28 +243,28 @@ export default class PiecePosition extends Data {
     }
 
     /**
-     * havePiecesをJSONに変換
+     * capturedPiecesをJSONに変換
      * @returns {Json[]}
      */
     private toHavePiecesJSON(): Json[] {
-        const havePiecesObj = [];
-        for(let havePiece of this._havePieces) {
-            havePiecesObj.push(havePiece.toJSON());
+        const capturedPiecesObj = [];
+        for(let capturedPiece of this._capturedPieces) {
+            capturedPiecesObj.push(capturedPiece.toJSON());
         }
-        return havePiecesObj;
+        return capturedPiecesObj;
     }
 
     /**
-     * JSONをhavePiecesに変換
-     * @param {Json[]} havePiecesObj
-     * @returns {HavePiece[]}
+     * JSONをcapturedPiecesに変換
+     * @param {Json[]} capturedPiecesObj
+     * @returns {CapturedPiece[]}
      */
-    private static fromJSONtoHavePieces(havePiecesObj: Json[]): HavePiece[] {
-        const havePieces: HavePiece[] = [];
-        for(let havePieceObj of havePiecesObj) {
-            havePieces.push(new HavePiece(havePieceObj.type, havePieceObj.isSente, havePieceObj.num));
+    private static fromJSONtoHavePieces(capturedPiecesObj: Json[]): CapturedPiece[] {
+        const capturedPieces: CapturedPiece[] = [];
+        for(let capturedPieceObj of capturedPiecesObj) {
+            capturedPieces.push(new CapturedPiece(capturedPieceObj.type, capturedPieceObj.isSente, capturedPieceObj.num));
         }
-        return havePieces;
+        return capturedPieces;
     }
 
     /**
@@ -278,9 +279,9 @@ export default class PiecePosition extends Data {
                 cpyPieces[x][y] = piece != null ? new Piece(piece.type, piece.isSente) : null;
             }
         }
-        const cpyHavePieces: HavePiece[] = [];
-        for(let havePiece of this._havePieces) {
-            const cpyHavePiece: HavePiece = new HavePiece(havePiece.type, havePiece.isSente, havePiece.num);
+        const cpyHavePieces: CapturedPiece[] = [];
+        for(let capturedPiece of this._capturedPieces) {
+            const cpyHavePiece: CapturedPiece = new CapturedPiece(capturedPiece.type, capturedPiece.isSente, capturedPiece.num);
             cpyHavePieces.push(cpyHavePiece);
         }
         return new PiecePosition(cpyPieces, cpyHavePieces, this._isTurnSente);
@@ -317,11 +318,11 @@ export default class PiecePosition extends Data {
     private toSfenHave(): string {
         let senteSfen: string = "";
         let goteSfen: string = "";
-        for(let havePiece of this._havePieces) {
-            if(havePiece.num == 0) continue;
-            const numStr: string = havePiece.num == 1 ? "" : havePiece.num.toString();
-            const pieceStr: string = `${numStr}${this.toSfenPiece(havePiece)}`;
-            if(havePiece.isSente) {
+        for(let capturedPiece of this._capturedPieces) {
+            if(capturedPiece.num == 0) continue;
+            const numStr: string = capturedPiece.num == 1 ? "" : capturedPiece.num.toString();
+            const pieceStr: string = `${numStr}${this.toSfenPiece(capturedPiece)}`;
+            if(capturedPiece.isSente) {
                 senteSfen += pieceStr;
             }else {
                 goteSfen += pieceStr;
@@ -373,11 +374,11 @@ export default class PiecePosition extends Data {
      * @param piece
      */
     private delHavePiece(piece: Piece): void {
-        for(let i = 0; i < this._havePieces.length; i++) {
-            if(this._havePieces[i].type == piece.type && this._havePieces[i].isSente == piece.isSente) {
-                this._havePieces[i].num -= 1;
-                if(this._havePieces[i].num == 0) {
-                    this._havePieces.splice(i, 1);
+        for(let i = 0; i < this._capturedPieces.length; i++) {
+            if(this._capturedPieces[i].type == piece.type && this._capturedPieces[i].isSente == piece.isSente) {
+                this._capturedPieces[i].num -= 1;
+                if(this._capturedPieces[i].num == 0) {
+                    this._capturedPieces.splice(i, 1);
                 }
                 return;
             }
@@ -389,13 +390,13 @@ export default class PiecePosition extends Data {
      * @param {Piece} piece
      */
     private setHavePiece(piece: Piece): void {
-        for(let havePiece of this._havePieces) {
-            if(piece.type == havePiece.type && piece.isSente == havePiece.isSente) {
-                havePiece.num += 1;
+        for(let capturedPiece of this._capturedPieces) {
+            if(piece.type == capturedPiece.type && piece.isSente == capturedPiece.isSente) {
+                capturedPiece.num += 1;
                 return;
             }
         }
-        this._havePieces.push(new HavePiece(piece.type, piece.isSente, 1));
+        this._capturedPieces.push(new CapturedPiece(piece.type, piece.isSente, 1));
     }
 
     /**

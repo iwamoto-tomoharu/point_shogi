@@ -1,0 +1,66 @@
+.handArea {
+  position: absolute;
+  height: 10%;
+  width: 93%;
+  overflow : hidden;
+}
+
+.handBackPos {
+  @extend .handArea;
+  left: 0;
+  top: 9%;
+  padding: 0 3%;
+}
+
+.handFrontPos {
+  @extend .handArea;
+  left: 0;
+  top: 87%;
+  padding: 0 3%;
+}
+
+.capturedPiece {
+  width: 11%;
+  height: 100%;
+  position: relative;
+}
+
+.capturedPieceBack {
+  @extend .capturedPiece;
+  float: right;
+}
+
+.capturedPieceFront {
+  @extend .capturedPiece;
+  float: left;
+}
+
+.pieceNum {
+  position: absolute;
+  left: 83%;
+}
+
+.pieceNumBack {
+  @extend .pieceNum;
+  top: 55%
+}
+
+.pieceNumFront {
+  @extend .pieceNum;
+  top: 20%
+}
+
+.imgPiece {
+  width: 100%;
+}
+.imgPieceNormal {
+  @extend .imgPiece;
+  margin-top:  30%;
+  margin-left: 0;
+}
+.imgPieceSelected {
+  @extend .imgPiece;
+  margin-top:  10%;
+  margin-left: -10%;
+}
+

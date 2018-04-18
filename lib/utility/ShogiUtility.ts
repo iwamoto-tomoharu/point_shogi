@@ -1,6 +1,7 @@
 import PieceType from "../data/enum/PieceType";
 import Piece from "../data/Piece";
 import Move from "../data/Move";
+import CapturedPiece from "../data/CapturedPiece";
 
 export default class ShogiUtility {
     public static nariMap(): {[key: number]: number} {
@@ -69,6 +70,11 @@ export default class ShogiUtility {
         return nariPieceType;
     }
 
+    /**
+     *  CSAからPieceType取得
+     * @param {string} csaPiece
+     * @returns {PieceType}
+     */
     public static getPieceTypeFromCsa(csaPiece: string): PieceType {
         const map: {[key: number]: string} = this.pieceCsaMap();
         for(let pieceType in map) {
@@ -96,6 +102,22 @@ export default class ShogiUtility {
         const pieceType: PieceType = ShogiUtility.getPieceTypeFromCsa(peiceStr);
         const piece: Piece = new Piece(pieceType, isSente);
         return new Move(fromX, fromY, toX, toY, piece);
+    }
+
+    /**
+     * 持ち駒を駒の種類順にソート
+     * @param {CapturedPiece} capturedPieces
+     * @param {boolean} isAsc
+     * @returns {CapturedPiece[]}
+     */
+    public static sortCapturedPieces(capturedPieces: CapturedPiece[], isAsc: boolean): CapturedPiece[] {
+        return capturedPieces.sort((a: CapturedPiece, b: CapturedPiece) => {
+            if(a.isSente && !b.isSente) return -1;
+            if(b.isSente && !a.isSente) return 1;
+            if(a.type < b.type) return isAsc ? -1 : 1;
+            if(a.type > b.type) return isAsc ? 1 : -1;
+            return 0;
+        });
     }
 
     public static isHiKaKy(pieceType: PieceType): boolean {

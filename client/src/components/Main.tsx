@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as styles from "./css/Main.scss";
+import * as styles from "./scss/Main.scss";
 
 interface Props {
 }

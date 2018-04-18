@@ -38,6 +38,11 @@ export default class Move extends Data {
         return new Move(this._fromX, this._fromY, this. _toX, this._toY, new Piece(this._piece.type, this._piece.isSente));
     }
 
+    public equal(move: Move): boolean {
+        return move.fromX === this._fromX && move.fromY === this._fromY &&
+            move.toX === this._toX && move.toY === this._toY && move.piece === this._piece;
+    }
+
     /**
      * ObjectをPiecePositionに変換
      * @param {Json} obj

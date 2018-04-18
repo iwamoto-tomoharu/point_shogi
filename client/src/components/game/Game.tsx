@@ -1,7 +1,8 @@
 import * as React from "react";
-import * as styles from "../css/Game.scss";
+import * as styles from "../scss/Game.scss";
 import Props from "./Props";
-import {Board} from "./Board";
+import Board from "./Board";
+import Hand from "./Hand";
 
 export class Game extends React.Component<Props, {}> {
     public render(): React.ReactElement<Props> {
@@ -9,7 +10,9 @@ export class Game extends React.Component<Props, {}> {
         window.addEventListener("beforeunload", () => this.props.actions.closePage());
         return (
             <div className={styles.gameArea}>
+                <Hand value={this.props.value} actions={this.props.actions} isMe={false} />
                 <Board value={this.props.value} actions={this.props.actions}/>
+                <Hand value={this.props.value} actions={this.props.actions} isMe={true} />
             </div>
         );
     }

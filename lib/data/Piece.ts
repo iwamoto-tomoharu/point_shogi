@@ -21,6 +21,7 @@ export default class Piece extends Data {
      * @returns {boolean}
      */
     public equal(piece: Piece): boolean {
+        if(!piece) return false;
         return this._type === piece._type && this.isSente && piece.isSente;
     }
 

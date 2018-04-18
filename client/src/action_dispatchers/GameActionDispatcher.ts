@@ -1,5 +1,5 @@
 import {ReduxAction, ReduxState} from "../Store";
-import {GameState, pieceMove, selectPiece} from "../modules/GameModule";
+import {cancelMove, GameState, nariChoice, pieceMove, selectPiece} from "../modules/GameModule";
 import Move from "../../../lib/data/Move";
 import EngineCommand from "../../../lib/data/EngineCommand";
 import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
@@ -10,7 +10,12 @@ import AnalysisTransceiver from "../web_client/AnalysisTransceiver";
 import PiecePosition from "../../../lib/data/PiecePosition";
 import {Store} from "redux";
 import BoardPiece from "../../../lib/data/BoardPiece";
+import ShogiRule from "../../../lib/ShogiRule";
 
+// こちらの記事を参考
+// https://qiita.com/uryyyyyyy/items/d8bae6a7fca1c4732696
+// Middlewareではなくこのクラスで非同期処理を行う
+// ビジネスロジックも基本的にはここに書くことにする
 export default class GameActionDispatcher {
     constructor(
         private dispatch: (action: ReduxAction) => void,
@@ -20,15 +25,39 @@ export default class GameActionDispatcher {
     /**
      * 自分の駒を移動
      * @param {Move} move
+     * @param {boolean} isNariConfimed 成り確認済みか
      */
-    public moveMyPiece(move: Move): void {
+    public moveMyPiece(move: Move, isNariConfimed: boolean): void {
+        //成り選択が必要か
+        if(!isNariConfimed && ShogiRule.isNariChoiceMove(this.state.position, move)) {
+            this.dispatch(nariChoice(move));
+            return;
+        }
+        //駒移動
         this.dispatch(pieceMove(move));
         const position: PiecePosition = this.state.position;
         this.moveOpponentPiece(position.getNextPosition(move));
     }
 
+    /**
+     * 自分の駒を選択
+     * @param {BoardPiece} boardPiece
+     */
     public selectMyPiece(boardPiece: BoardPiece): void {
-        this.dispatch(selectPiece(boardPiece));
+        //選択した駒の合法手を抽出
+        const legalMoves: Move[] = ShogiRule.getLegalMoveList(this.state.position);
+        const selectedLegalMoves: Move[] = legalMoves.filter((move: Move) =>
+            GameActionDispatcher.isBoardPieceMove(move, boardPiece)
+        );
+        console.log(selectedLegalMoves);
+        this.dispatch(selectPiece(boardPiece, selectedLegalMoves));
+    }
+
+    /**
+     * 選択状態をキャンセル
+     */
+    public cancelSelectMyPiece(): void {
+        this.dispatch(cancelMove());
     }
 
     /**
@@ -67,5 +96,14 @@ export default class GameActionDispatcher {
                 console.error(err);
             }
         })();
+    }
+
+    private static isBoardPieceMove(move: Move, boardPiece: BoardPiece): boolean {
+        const isCapturedPiece = boardPiece.x === 0 && boardPiece.y === 0;
+        if(isCapturedPiece) {
+            return move.fromX === boardPiece.x && move.fromY === boardPiece.y && move.piece.equal(boardPiece);
+        } else {
+            return move.fromX === boardPiece.x && move.fromY === boardPiece.y;
+        }
     }
 }

@@ -5,7 +5,7 @@
 }
 
 .boardPos {
-  left: 0%;
+  left: 0;
   top: 18%;
 }
 
@@ -22,12 +22,25 @@
   height: 71.2%;
 }
 
-.piece {
+.squareArea {
   position: absolute;
-  //background-color: #e3f3ff;
+  width: 10%;
+  height: 10%;
+  background: rgba(0, 0, 0, 0);
 }
 
 .imgPiece {
-  position: absolute;
-  width:10%;
+  width: 100%;
+
+}
+.imgPieceNormal {
+  @extend .imgPiece;
+  margin-top: 0;
+  margin-left: 0;
+}
+
+.imgPieceSelected {
+  @extend .imgPiece;
+  margin-top: -20%;
+  margin-left: 10%;
 }

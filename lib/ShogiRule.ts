@@ -1,13 +1,13 @@
 import Move from "./data/Move";
 import PiecePosition from "./data/PiecePosition";
-import HavePiece from "./data/HavePiece";
+import HavePiece from "./data/CapturedPiece";
 import Piece from "./data/Piece";
 import PieceType from "./data/enum/PieceType";
 import ShogiUtility from "./utility/ShogiUtility";
 import Direction from "./data/Direction";
 import Vector from "./data/Vector";
 
-export default class Rule {
+export default class ShogiRule {
     /**
      * 合法手であるか
      * 先手側の指し手とする
@@ -17,8 +17,6 @@ export default class Rule {
      */
     public static isLegalMove(move: Move, pPosition: PiecePosition): boolean {
         let legalMoves: Move[] = this.getLegalMoveList(pPosition);
-        console.log(legalMoves);
-        console.log(move);
         return this.isIncluedeMoves(move, legalMoves);
     }
 
@@ -31,8 +29,8 @@ export default class Rule {
         //盤面
         let boardMoves: Move[] = this.getBoardLegalMoveList(pPosition);
         //持ち駒
-        let havePieceMoves: Move[] = this.getHavePieceLegalMoveList(pPosition);
-        let retMoves: Move[] = boardMoves.concat(havePieceMoves);
+        let capturedPieceMoves: Move[] = this.getHavePieceLegalMoveList(pPosition);
+        let retMoves: Move[] = boardMoves.concat(capturedPieceMoves);
         //自玉に相手の利きがあるものは除く
         retMoves = this.removeDirectionMatchMyKing(retMoves, pPosition);
         //飛角歩の不成は除く(合法手ではあるがほぼ不要なので)
@@ -53,6 +51,16 @@ export default class Rule {
             legalPosList.push(pPosition.getNextPosition(move));
         }
         return legalPosList;
+    }
+
+    /**
+     * 成り選択が必要な駒移動か
+     * @param {PiecePosition} pPosition
+     * @param {Move} move
+     * @returns {boolean}
+     */
+    public static isNariChoiceMove(pPosition: PiecePosition, move: Move): boolean {
+        return false;
     }
 
     /**
@@ -80,8 +88,8 @@ export default class Rule {
      */
     private static getHavePieceLegalMoveList(pPosition: PiecePosition): Move[] {
         let retMoves: Move[] = [];
-        for(let i = 0; i < pPosition.havePieces.length; i++) {
-            let moves: Move[] = this.getHavePieceLegalMoves(pPosition.havePieces[i], pPosition);
+        for(let i = 0; i < pPosition.capturedPieces.length; i++) {
+            let moves: Move[] = this.getHavePieceLegalMoves(pPosition.capturedPieces[i], pPosition);
             if(moves == null) continue;
             retMoves = retMoves.concat(moves);
         }
@@ -110,22 +118,22 @@ export default class Rule {
 
     /**
      * 持ち駒の合法手を取得
-     * @param havePiece
+     * @param capturedPiece
      * @param position
      * @returns {Move[]}
      */
-    private static getHavePieceLegalMoves(havePiece: HavePiece, pPosition: PiecePosition): Move[] {
-        if(!havePiece.isSente) return null;
+    private static getHavePieceLegalMoves(capturedPiece: HavePiece, pPosition: PiecePosition): Move[] {
+        if(!capturedPiece.isSente) return null;
         let position: Piece[][] = pPosition.position;
         let moves: Move[] = [];
-        let movePiece: Piece = new Piece(havePiece.type, havePiece.isSente);
+        let movePiece: Piece = new Piece(capturedPiece.type, capturedPiece.isSente);
         for(let x = 0; x < position.length; x++) {
             for(let y = 0; y < position[x].length; y++) {
                 let piece: Piece = position[x][y];
                 if(piece != null) continue;
-                if(!this.isLegalMovePosition(y + 1, havePiece)) continue;
-                if(this.isNiFuMove(x, havePiece, position)) continue;
-                if(this.isUtiFuCheckmate(x + 1, y + 1, havePiece, pPosition)) continue;
+                if(!this.isLegalMovePosition(y + 1, capturedPiece)) continue;
+                if(this.isNiFuMove(x, capturedPiece, position)) continue;
+                if(this.isUtiFuCheckmate(x + 1, y + 1, capturedPiece, pPosition)) continue;
 
                 moves.push(new Move(0, 0, x + 1, y + 1, movePiece));
             }
@@ -154,12 +162,12 @@ export default class Rule {
     /**
      * 二歩であるか
      * @param x
-     * @param havePiece
+     * @param capturedPiece
      * @param position
      * @returns {boolean}
      */
-    private static isNiFuMove(x: number, havePiece: HavePiece, position: Piece[][]): boolean {
-        if(havePiece.type != PieceType.fu) return false;
+    private static isNiFuMove(x: number, capturedPiece: HavePiece, position: Piece[][]): boolean {
+        if(capturedPiece.type != PieceType.fu) return false;
         for(let y = 0; y < position[x].length; y++) {
             let piece: Piece = position[x][y];
             if(piece == null) continue;
@@ -172,13 +180,13 @@ export default class Rule {
      * 打ち歩詰めであるか
      * @param toX
      * @param toY
-     * @param havePiece
+     * @param capturedPiece
      * @param pPosition
      * @returns {boolean}
      */
-    private static isUtiFuCheckmate(toX: number, toY: number, havePiece: HavePiece, pPosition: PiecePosition): boolean {
-        if(havePiece.type != PieceType.fu) return false;
-        let move: Move = new Move(0 , 0, toX, toY, new Piece(havePiece.type, havePiece.isSente));
+    private static isUtiFuCheckmate(toX: number, toY: number, capturedPiece: HavePiece, pPosition: PiecePosition): boolean {
+        if(capturedPiece.type != PieceType.fu) return false;
+        let move: Move = new Move(0 , 0, toX, toY, new Piece(capturedPiece.type, capturedPiece.isSente));
         let nextPosition: PiecePosition = pPosition.getNextPosition(move).getReverse();
         //次の局面で合法手が存在しない場合は詰みなので打ち歩と判断する
         let legalMoves: Move[] = this.getBoardLegalMoveList(nextPosition);
