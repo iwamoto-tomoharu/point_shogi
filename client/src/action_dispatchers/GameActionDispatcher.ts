@@ -1,5 +1,5 @@
 import {ReduxAction, ReduxState} from "../Store";
-import {cancelMove, GameState, nariChoice, pieceMove, selectPiece} from "../modules/GameModule";
+import {cancelMove, GameState, nariChoice, NariChoiceMove, pieceMove, selectPiece} from "../modules/GameModule";
 import Move from "../../../lib/data/Move";
 import EngineCommand from "../../../lib/data/EngineCommand";
 import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
@@ -11,6 +11,8 @@ import PiecePosition from "../../../lib/data/PiecePosition";
 import {Store} from "redux";
 import BoardPiece from "../../../lib/data/BoardPiece";
 import ShogiRule from "../../../lib/ShogiRule";
+import ShogiUtility from "../../../lib/utility/ShogiUtility";
+import Piece from "../../../lib/data/Piece";
 
 // こちらの記事を参考
 // https://qiita.com/uryyyyyyy/items/d8bae6a7fca1c4732696
@@ -29,14 +31,14 @@ export default class GameActionDispatcher {
      */
     public moveMyPiece(move: Move, isNariConfimed: boolean): void {
         //成り選択が必要か
-        if(!isNariConfimed && ShogiRule.isNariChoiceMove(this.state.position, move)) {
-            this.dispatch(nariChoice(move));
+        if(!isNariConfimed && ShogiRule.isNeedChoiceNari(this.state.position, move)) {
+            this.dispatch(nariChoice(GameActionDispatcher.getNariChoiceMoves(move)));
             return;
         }
         //駒移動
         this.dispatch(pieceMove(move));
         const position: PiecePosition = this.state.position;
-        this.moveOpponentPiece(position.getNextPosition(move));
+        this.moveOpponentPiece(position);
     }
 
     /**
@@ -98,6 +100,32 @@ export default class GameActionDispatcher {
         })();
     }
 
+    /**
+     * 成り不成のMoveを取得
+     * @param {Move} move
+     * @returns {NariChoiceMove}
+     */
+    private static getNariChoiceMoves(move: Move): NariChoiceMove {
+        let nari;
+        let narazu;
+        if(ShogiUtility.isNari(move.piece.type)) {
+            nari = move;
+            const narazuPiece = new Piece(ShogiUtility.getNariToNormalPiece(move.piece.type), move.piece.isSente);
+            narazu = new Move(move.fromX, move.fromY, move.toX, move.toY, narazuPiece);
+        } else {
+            const nariPiece = new Piece(ShogiUtility.nariMap[move.piece.type], move.piece.isSente);
+            nari = new Move(move.fromX, move.fromY, move.toX, move.toY, nariPiece);
+            narazu = move;
+        }
+        return {nari, narazu};
+    }
+
+    /**
+     * 指定した位置の駒のMoveであるか
+     * @param {Move} move
+     * @param {BoardPiece} boardPiece
+     * @returns {boolean}
+     */
     private static isBoardPieceMove(move: Move, boardPiece: BoardPiece): boolean {
         const isCapturedPiece = boardPiece.x === 0 && boardPiece.y === 0;
         if(isCapturedPiece) {

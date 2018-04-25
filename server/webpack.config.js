@@ -1,4 +1,5 @@
 module.exports = {
+    mode: "development",
     entry: `${__dirname}/src/Main.ts`,
     output: {
         path: `${__dirname}/build`,
@@ -9,9 +10,9 @@ module.exports = {
         rules: [
             {
                 test: /\.ts$/,
-                loader: "awesome-typescript-loader",
+                loader: "ts-loader",
                 options: {
-                    configFileName: "./server/tsconfig.json",
+                    configFile: "server/tsconfig.json",
                 }
             },
             {

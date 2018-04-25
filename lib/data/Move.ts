@@ -40,7 +40,7 @@ export default class Move extends Data {
 
     public equal(move: Move): boolean {
         return move.fromX === this._fromX && move.fromY === this._fromY &&
-            move.toX === this._toX && move.toY === this._toY && move.piece === this._piece;
+            move.toX === this._toX && move.toY === this._toY && move.piece.equal(this._piece);
     }
 
     /**
@@ -56,5 +56,9 @@ export default class Move extends Data {
             obj._toY,
             Piece.fromJSON(obj._piece)
         );
+    }
+
+    public toString(): string {
+        return `${this.fromX}${this.fromY}${this.toX}${this.toY} piece:${this.piece.type} isSente:${this.piece.isSente}`;
     }
 }

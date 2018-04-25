@@ -6,6 +6,7 @@ import PieceType from "./enum/PieceType";
 import ShogiUtility from "../utility/ShogiUtility";
 import Data from "./Data";
 import Json from "./api/Json";
+import InvalidMoveError from "../error/InvalidMoveError";
 
 export default class PiecePosition extends Data {
     private static readonly SFEN_HAVE_PIECE_MAP: {[key: string]: PieceType} = {
@@ -161,7 +162,7 @@ export default class PiecePosition extends Data {
             fromX = Number(charAry[0]);
             fromY = charAry[1].charCodeAt(0) - beforeACharCode;
             piece = this.getPiece(fromX, fromY);
-            if(isNari) piece = new Piece(ShogiUtility.nariMap()[piece.type], piece.isSente);
+            if(isNari) piece = new Piece(ShogiUtility.nariMap[piece.type], piece.isSente);
             if(piece === null) throw new Error(`invalid move from ${sfen}`);
         }
         return new Move(fromX, fromY, toX, toY, piece);
@@ -197,13 +198,14 @@ export default class PiecePosition extends Data {
      * @param {Move} move
      */
     private move(move: Move): void {
-        //TODO:動かす駒があるか
-
-        //TODO:動かす先に自分の駒がないか
-
+        //動かす駒があるか
+        const fromPiece = this.getPiece(move.fromX, move.fromY);
+        if(move.fromX !== 0 && move.fromY !== 0 && !fromPiece) throw new InvalidMoveError(`invalid move. ${move}`);
         //異動先に駒がある場合は持ち駒にする
         const nextOppPiece: Piece = this.getPiece(move.toX, move.toY);
-        if(nextOppPiece != null) {
+        if(nextOppPiece) {
+            //動かす先に自分の駒がないか
+            if(nextOppPiece.isSente === move.piece.isSente) throw new InvalidMoveError(`invalid move. ${move}`);
             this.setHavePiece(new Piece(ShogiUtility.getNariToNormalPiece(nextOppPiece.type), !nextOppPiece.isSente));
         }
         this.delPiece(move.fromX, move.fromY, move.piece);
@@ -262,7 +264,7 @@ export default class PiecePosition extends Data {
     private static fromJSONtoHavePieces(capturedPiecesObj: Json[]): CapturedPiece[] {
         const capturedPieces: CapturedPiece[] = [];
         for(let capturedPieceObj of capturedPiecesObj) {
-            capturedPieces.push(new CapturedPiece(capturedPieceObj.type, capturedPieceObj.isSente, capturedPieceObj.num));
+            capturedPieces.push(new CapturedPiece(capturedPieceObj._type, capturedPieceObj._isSente, capturedPieceObj._num));
         }
         return capturedPieces;
     }

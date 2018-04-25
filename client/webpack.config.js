@@ -1,4 +1,5 @@
 module.exports = {
+    mode: "development",
     entry: `${__dirname}/src/Index.tsx`,
     output: {
         path: `${__dirname}/build`,
@@ -18,9 +19,9 @@ module.exports = {
             },
             {
                 test: /\.tsx?$/,
-                loader: "awesome-typescript-loader",
+                loader: "ts-loader",
                 options: {
-                    configFileName: "./client/tsconfig.json",
+                    configFile: "client/tsconfig.json",
                 }
             },
             {

@@ -4,20 +4,17 @@ import Move from "../data/Move";
 import CapturedPiece from "../data/CapturedPiece";
 
 export default class ShogiUtility {
-    public static nariMap(): {[key: number]: number} {
-        return {
-            [PieceType.fu]:    PieceType.to,
-            [PieceType.kyo]:   PieceType.narikyo,
-            [PieceType.kei]:   PieceType.narikei,
-            [PieceType.gin]:   PieceType.narigin,
-            [PieceType.kaku]:  PieceType.uma,
-            [PieceType.hisya]: PieceType.ryu,
-        };
-    }
+    public static readonly nariMap: {[key: number]: number} = {
+        [PieceType.fu]:    PieceType.to,
+        [PieceType.kyo]:   PieceType.narikyo,
+        [PieceType.kei]:   PieceType.narikei,
+        [PieceType.gin]:   PieceType.narigin,
+        [PieceType.kaku]:  PieceType.uma,
+        [PieceType.hisya]: PieceType.ryu,
+    };
 
-    public static pieceStrMap(): {[key: number]: string} {
-        return {
-            [PieceType.fu]:     "歩",
+    public static readonly pieceStrMap: {[key: number]: string} = {
+        [PieceType.fu]:         "歩",
         [PieceType.kyo]:        "香",
         [PieceType.kei]:        "桂",
         [PieceType.gin]:        "銀",
@@ -32,28 +29,25 @@ export default class ShogiUtility {
         [PieceType.uma]:        "馬",
         [PieceType.ryu]:        "竜",
 
-        };
-    }
+    };
 
-    public static pieceCsaMap(): {[key: number]: string} {
-        return {
-            [PieceType.fu]:         "FU",
-            [PieceType.kyo]:        "KY",
-            [PieceType.kei]:        "KE",
-            [PieceType.gin]:        "GI",
-            [PieceType.kin]:        "KI",
-            [PieceType.ou]:         "OU",
-            [PieceType.kaku]:       "KA",
-            [PieceType.hisya]:      "HI",
-            [PieceType.to]:         "TO",
-            [PieceType.narikyo]:    "NY",
-            [PieceType.narikei]:    "NK",
-            [PieceType.narigin]:    "NG",
-            [PieceType.uma]:        "UM",
-            [PieceType.ryu]:        "RY",
+    public static readonly pieceCsaMap: {[key: number]: string} = {
+        [PieceType.fu]:         "FU",
+        [PieceType.kyo]:        "KY",
+        [PieceType.kei]:        "KE",
+        [PieceType.gin]:        "GI",
+        [PieceType.kin]:        "KI",
+        [PieceType.ou]:         "OU",
+        [PieceType.kaku]:       "KA",
+        [PieceType.hisya]:      "HI",
+        [PieceType.to]:         "TO",
+        [PieceType.narikyo]:    "NY",
+        [PieceType.narikei]:    "NK",
+        [PieceType.narigin]:    "NG",
+        [PieceType.uma]:        "UM",
+        [PieceType.ryu]:        "RY",
+    };
 
-        };
-    }
 
     /**
      * 成駒を不成の駒に変換
@@ -61,7 +55,7 @@ export default class ShogiUtility {
      * @returns {any}
      */
     public static getNariToNormalPiece(nariPieceType: PieceType): PieceType {
-        const map: {[key: number]: number} = this.nariMap();
+        const map: {[key: number]: number} = this.nariMap;
         for(let pieceType in map) {
             if(map[pieceType] == nariPieceType) {
                 return <PieceType>Number(pieceType);
@@ -76,7 +70,7 @@ export default class ShogiUtility {
      * @returns {PieceType}
      */
     public static getPieceTypeFromCsa(csaPiece: string): PieceType {
-        const map: {[key: number]: string} = this.pieceCsaMap();
+        const map: {[key: number]: string} = this.pieceCsaMap;
         for(let pieceType in map) {
             if(map[pieceType] == csaPiece) {
                 return <PieceType>Number(pieceType);
@@ -118,6 +112,15 @@ export default class ShogiUtility {
             if(a.type > b.type) return isAsc ? 1 : -1;
             return 0;
         });
+    }
+
+    /**
+     * 成り駒であるか
+     * @param {PieceType} pieceType
+     * @returns {boolean}
+     */
+    public static isNari(pieceType: PieceType): boolean {
+        return Object.values(this.nariMap).some((p) => p === pieceType);
     }
 
     public static isHiKaKy(pieceType: PieceType): boolean {

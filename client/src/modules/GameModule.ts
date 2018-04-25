@@ -30,7 +30,7 @@ interface SelectPieceAction extends Action {
 interface NariChoiceAction extends Action {
     type: ActionNames.NariChoice;
     payload: {
-        nariChoiceMove: Move,
+        nariChoiceMove: {nari: Move, narazu: Move},
     };
 }
 
@@ -48,12 +48,25 @@ export const selectPiece = (boardPiece: BoardPiece, selectedLegalMoves: Move[]):
     payload: {selectPiece: boardPiece, selectedLegalMoves},
 });
 
-export const nariChoice = (nariChoiceMove: Move): NariChoiceAction => ({
+export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => ({
     type: ActionNames.NariChoice,
     payload: {nariChoiceMove: nariChoiceMove},
 });
 
+export enum PlayingStatus {
+    Thinking,           //自分の考慮中
+    SelectPiece,        //駒選択中
+    ChoiceNari,         //成駒選択中
+    WaitOpponentMove,   //相手の着手待ち中
+}
+
+export interface NariChoiceMove {
+    nari: Move;
+    narazu: Move;
+}
+
 export interface GameState {
+    playingStatus: PlayingStatus;
     //自分の先後
     isMeSente: boolean;
     //自分の手番か
@@ -65,7 +78,7 @@ export interface GameState {
     //選択中の駒の合法手
     selectedLegalMoves: Move[];
     //成り選択の駒移動
-    nariChoiceMove: Move;
+    nariChoiceMove: NariChoiceMove;
     //駒移動
     move: Move;
 }
@@ -73,12 +86,13 @@ export interface GameState {
 export type GameActions = MoveAction | SelectPieceAction | NariChoiceAction | CancelMoveAction;
 
 const initialState: GameState = {
+    playingStatus: PlayingStatus.Thinking,
     isMeSente: true,
     position: new PiecePosition(),
     isMyTurn: true,
     selectedPiece: null,
     selectedLegalMoves: [],
-    nariChoiceMove: null,
+    nariChoiceMove: {nari: null, narazu: null},
     move: null,
 };
 
@@ -97,23 +111,27 @@ export default function reducer(state: GameState = initialState, action: Action 
                 move: gameAction.payload.move,
             };
             nextState.isMyTurn = nextState.position.isTurnSente === nextState.isMeSente;
+            nextState.playingStatus = nextState.isMyTurn ? PlayingStatus.Thinking : PlayingStatus.WaitOpponentMove;
             return nextState;
         case ActionNames.SelectPiece:
             return {
                 ...state,
+                playingStatus: PlayingStatus.SelectPiece,
                 selectedPiece: gameAction.payload.selectPiece,
                 selectedLegalMoves: gameAction.payload.selectedLegalMoves,
             };
         case ActionNames.NariChoice:
             return {
                 ...state,
+                playingStatus: PlayingStatus.ChoiceNari,
                 nariChoiceMove: gameAction.payload.nariChoiceMove,
-            }
+            };
 
         case ActionNames.CancelPiece:
             return {
                 ...state,
                 ...selectOff,
+                playingStatus: PlayingStatus.Thinking,
             };
          default:
              return state;
