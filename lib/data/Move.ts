@@ -44,6 +44,15 @@ export default class Move extends Data {
     }
 
     /**
+     * 反転する
+     * @returns {Move}
+     */
+    public reverse(): Move {
+        return new Move(Move.posReverse(this._fromX), Move.posReverse(this._fromY),
+            Move.posReverse(this._toX), Move.posReverse(this._toY), this._piece.reverse());
+    }
+
+    /**
      * ObjectをPiecePositionに変換
      * @param {Json} obj
      * @returns {Move}
@@ -61,4 +70,10 @@ export default class Move extends Data {
     public toString(): string {
         return `${this.fromX}${this.fromY}${this.toX}${this.toY} piece:${this.piece.type} isSente:${this.piece.isSente}`;
     }
+
+    private static posReverse(pos: number): number {
+        if(pos === 0) return pos;
+        return 10 - pos;
+    }
+
 }

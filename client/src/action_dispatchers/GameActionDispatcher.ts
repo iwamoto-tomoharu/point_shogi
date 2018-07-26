@@ -24,6 +24,10 @@ export default class GameActionDispatcher {
         private store: Store<{}>,
     ) {}
 
+    public opponentStart(): void {
+        this.moveOpponentPiece(this.state.position);
+    }
+
     /**
      * 自分の駒を移動
      * @param {Move} move
@@ -37,8 +41,7 @@ export default class GameActionDispatcher {
         }
         //駒移動
         this.dispatch(pieceMove(move));
-        const position: PiecePosition = this.state.position;
-        this.moveOpponentPiece(position);
+        this.moveOpponentPiece(this.state.position);
     }
 
     /**
@@ -51,6 +54,8 @@ export default class GameActionDispatcher {
         const selectedLegalMoves: Move[] = legalMoves.filter((move: Move) =>
             GameActionDispatcher.isBoardPieceMove(move, boardPiece)
         );
+        console.log(legalMoves);
+        console.log(boardPiece);
         console.log(selectedLegalMoves);
         this.dispatch(selectPiece(boardPiece, selectedLegalMoves));
     }

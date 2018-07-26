@@ -11,7 +11,6 @@ import InvalidMoveError from "./error/InvalidMoveError";
 export default class ShogiRule {
     /**
      * 合法手であるか
-     * 先手側の指し手とする
      * @param move
      * @param pPosition
      * @returns {boolean}
@@ -27,15 +26,20 @@ export default class ShogiRule {
      * @returns {Move[]}
      */
     public static getLegalMoveList(pPosition: PiecePosition): Move[] {
+        //後手番の時は盤面を反転する
+        const pos = pPosition.isTurnSente ? pPosition : pPosition.getReverse();
         //盤面
-        const boardMoves: Move[] = this.getBoardLegalMoveList(pPosition);
+        const boardMoves: Move[] = this.getBoardLegalMoveList(pos);
         //持ち駒
-        const capturedPieceMoves: Move[] = this.getHavePieceLegalMoveList(pPosition);
-        let retMoves: Move[] = boardMoves.concat(capturedPieceMoves);
+        const capturedPieceMoves: Move[] = this.getHavePieceLegalMoveList(pos);
+        let moves: Move[] = boardMoves.concat(capturedPieceMoves);
         //自玉に相手の利きがあるものは除く
-        retMoves = this.removeDirectionMatchMyKing(retMoves, pPosition);
+        moves = this.removeDirectionMatchMyKing(moves, pos);
         // //飛角歩の不成は除く(合法手ではあるがほぼ不要なので)
-        // retMoves = this.removeHiKaFuNarazu(retMoves);
+        // retMoves = this.removeHiKaFuNarazu(moves);
+
+        //
+        const retMoves = pPosition.isTurnSente ? moves : moves.map((move) => move.reverse());
         return retMoves;
     }
 
@@ -214,9 +218,14 @@ export default class ShogiRule {
     private static isLegalNari(move: Move): boolean {
         const nariMap: {[key: number]: number} = ShogiUtility.nariMap;
         if(!nariMap.hasOwnProperty(move.piece.type.toString())) return false;
-        if((move.toY > 3 && move.piece.isSente) ||
-            (move.toY < 7 && !move.piece.isSente)) return false;
-        return true;
+        if(move.piece.isSente) {
+            if(move.toY <= 3) return true;
+            if(move.fromX <= 3) return true;
+        }else {
+            if(move.toY >= 7) return true;
+            if(move.fromX >= 7) return true;
+        }
+        return false;
     }
 
     /**

@@ -7,6 +7,7 @@ import PieceComponent from "./PieceComponent";
 import BoardPiece from "../../../../lib/data/BoardPiece";
 
 interface HandProps extends Props {
+    //自分の持ち駒か
     isMe: boolean;
 }
 
@@ -57,7 +58,7 @@ export default class Hand extends React.Component<HandProps, {}> {
         return (
             <div className={isFront ? styles.capturedPieceFront : styles.capturedPieceBack} key={index} onClick={clickAction}>
                 {capturedPiece.num > 1 ? <div className={isFront ? styles.pieceNumFront: styles.pieceNumBack}>{capturedPiece.num}</div> : null}
-                <PieceComponent piece={capturedPiece} className={isSelected ? styles.imgPieceSelected : styles.imgPieceNormal}/>
+                <PieceComponent piece={capturedPiece} isFront={isFront} className={isSelected ? styles.imgPieceSelected : styles.imgPieceNormal}/>
             </div>);
     }
 

@@ -22,7 +22,15 @@ export default class Piece extends Data {
      */
     public equal(piece: Piece): boolean {
         if(!piece) return false;
-        return this._type === piece._type && this.isSente && piece.isSente;
+        return this._type === piece._type && this.isSente === piece.isSente;
+    }
+
+    /**
+     * 反転する
+     * @returns {Piece}
+     */
+    public reverse(): Piece {
+        return new Piece(this._type, !this._isSente);
     }
 
     /**

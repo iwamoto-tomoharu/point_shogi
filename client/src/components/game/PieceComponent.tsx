@@ -4,6 +4,7 @@ import Piece from "../../../../lib/data/Piece";
 
 interface PieceProps {
     piece: Piece;
+    isFront: boolean;
     className: string;
 }
 
@@ -13,7 +14,7 @@ interface PieceProps {
 export default class PieceComponent extends React.Component<PieceProps, {}> {
     public render(): React.ReactElement<PieceProps> {
         const pieceName = PieceType[this.props.piece.type];
-        const sengo = this.props.piece.isSente ? "sente" : "gote";
+        const sengo = this.props.isFront ? "sente" : "gote";
         return (
             <img src={`image/game/piece/${sengo}/${pieceName}.png`}
                  className={this.props.className}

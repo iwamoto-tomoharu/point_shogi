@@ -79,21 +79,22 @@ export interface GameState {
     selectedLegalMoves: Move[];
     //成り選択の駒移動
     nariChoiceMove: NariChoiceMove;
-    //駒移動
-    move: Move;
+    //棋譜
+    moves: Move[];
 }
 
 export type GameActions = MoveAction | SelectPieceAction | NariChoiceAction | CancelMoveAction;
 
+//stateの初期値
 const initialState: GameState = {
     playingStatus: PlayingStatus.Thinking,
-    isMeSente: true,
+    isMeSente: false,
     position: new PiecePosition(),
-    isMyTurn: true,
+    isMyTurn: false,
     selectedPiece: null,
     selectedLegalMoves: [],
     nariChoiceMove: {nari: null, narazu: null},
-    move: null,
+    moves: [],
 };
 
 export default function reducer(state: GameState = initialState, action: Action | GameActions): GameState {
@@ -108,7 +109,7 @@ export default function reducer(state: GameState = initialState, action: Action 
                 ...state,
                 ...selectOff,
                 position: state.position.getNextPosition(gameAction.payload.move),
-                move: gameAction.payload.move,
+                moves: state.moves.concat([gameAction.payload.move]),
             };
             nextState.isMyTurn = nextState.position.isTurnSente === nextState.isMeSente;
             nextState.playingStatus = nextState.isMyTurn ? PlayingStatus.Thinking : PlayingStatus.WaitOpponentMove;
