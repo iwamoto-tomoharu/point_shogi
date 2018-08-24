@@ -220,10 +220,10 @@ export default class ShogiRule {
         if(!nariMap.hasOwnProperty(move.piece.type.toString())) return false;
         if(move.piece.isSente) {
             if(move.toY <= 3) return true;
-            if(move.fromX <= 3) return true;
+            if(move.fromY <= 3) return true;
         }else {
             if(move.toY >= 7) return true;
-            if(move.fromX >= 7) return true;
+            if(move.fromY >= 7) return true;
         }
         return false;
     }

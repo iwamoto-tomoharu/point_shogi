@@ -1,5 +1,13 @@
 import {ReduxAction, ReduxState} from "../Store";
-import {cancelMove, GameState, nariChoice, NariChoiceMove, pieceMove, selectPiece} from "../modules/GameModule";
+import {
+    cancelMove,
+    gameStart,
+    GameState,
+    nariChoice,
+    NariChoiceMove,
+    pieceMove,
+    selectPiece
+} from "../modules/GameModule";
 import Move from "../../../lib/data/Move";
 import EngineCommand from "../../../lib/data/EngineCommand";
 import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
@@ -24,8 +32,15 @@ export default class GameActionDispatcher {
         private store: Store<{}>,
     ) {}
 
-    public opponentStart(): void {
-        this.moveOpponentPiece(this.state.position);
+    /**
+     * 対局開始
+     */
+    public start(): void {
+        const isMeSente = GameActionDispatcher.execFurigoma();
+        this.dispatch(gameStart(isMeSente));
+        if(!isMeSente) {
+            this.moveOpponentPiece(this.state.position);
+        }
     }
 
     /**
@@ -54,9 +69,6 @@ export default class GameActionDispatcher {
         const selectedLegalMoves: Move[] = legalMoves.filter((move: Move) =>
             GameActionDispatcher.isBoardPieceMove(move, boardPiece)
         );
-        console.log(legalMoves);
-        console.log(boardPiece);
-        console.log(selectedLegalMoves);
         this.dispatch(selectPiece(boardPiece, selectedLegalMoves));
     }
 
@@ -138,5 +150,13 @@ export default class GameActionDispatcher {
         } else {
             return move.fromX === boardPiece.x && move.fromY === boardPiece.y;
         }
+    }
+
+    /**
+     *
+     * @returns {boolean}
+     */
+    private static execFurigoma(): boolean {
+        return [true, false][Math.round(Math.random())];
     }
 }

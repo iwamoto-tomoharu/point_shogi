@@ -21,7 +21,7 @@ export default class Engine {
         {regExp: /^readyok/, listener: this.onDataReadyOk.bind(this)},
         {regExp: /resign/, listener: this.onDataResign.bind(this)},
         {regExp: /win/, listener: this.onDataWin.bind(this)},
-        {regExp: /mate (.*)/, listener: this.onDataMate.bind(this)},
+        {regExp: /mate ([0-9]+)/, listener: this.onDataMate.bind(this)},
         {regExp: /score cp ([-]?[0-9]+)/, listener: this.onDataScoreCp.bind(this)},
         {regExp: / pv (.*)/, listener: this.onDataPv.bind(this)},
         {regExp: /bestmove (.*)/, listener: this.onDataBestMove.bind(this)},
@@ -162,13 +162,11 @@ export default class Engine {
      * @param {RegExpMatchArray} recAry
      */
     private onDataMate(recAry: RegExpMatchArray): void {
-        if(recAry[1]) {
-            const mateVal: number = Number(recAry[1]);
-            const evaluation: number = mateVal >= 0 ? Engine.EVAL_MAX : Engine.EVAL_MIN;
-            this.callReceiveListener({status: true, evaluation: evaluation});
-        } else {
-            this.callReceiveListener({status: false});
-        }
+        console.log("onDataMate");
+        console.log(recAry);
+        const mateVal: number = Number(recAry[1]);
+        if(!Number.isInteger(mateVal)) return;
+        this.evaluation = mateVal >= 0 ? Engine.EVAL_MAX : Engine.EVAL_MIN;
     }
 
     /**
@@ -176,10 +174,10 @@ export default class Engine {
      * @param {RegExpMatchArray} recAry
      */
     private onDataScoreCp(recAry: RegExpMatchArray): void {
-        if(recAry[1]) {
-            //bestmoveを受信した時に使用する
-            this.evaluation = Number(recAry[1]);
-        }
+        const evaluation: number = Number(recAry[1]);
+        if(!Number.isInteger(evaluation)) return;
+        //bestmoveを受信した時に使用する
+        this.evaluation = evaluation;
     }
 
     /**
@@ -195,13 +193,13 @@ export default class Engine {
      * @param {RegExpMatchArray} recAry
      */
     private onDataBestMove(recAry: RegExpMatchArray): void {
-        if(recAry[1] && this.evaluation != null) {
-            const bestMove: string = recAry[1].split(" ")[0];
-            this.callReceiveListener({status: true, evaluation: this.evaluation, bestMove: bestMove});
-            this.evaluation = null;
-        } else {
+        if(!recAry[1] || this.evaluation == null) {
             this.callReceiveListener({status: false});
+            return;
         }
+        const bestMove: string = recAry[1].split(" ")[0];
+        this.callReceiveListener({status: true, evaluation: this.evaluation, bestMove: bestMove});
+        this.evaluation = null;
     }
 
     /**

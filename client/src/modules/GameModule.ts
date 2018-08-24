@@ -5,10 +5,16 @@ import Piece from "../../../lib/data/Piece";
 import BoardPiece from "../../../lib/data/BoardPiece";
 
 enum ActionNames {
+    Start       = "game/start",
     MovePiece   = "game/move_piece",
     SelectPiece = "game/select_piece",
     NariChoice = "game/nari_choice",
     CancelPiece = "game/cancel_piece",
+}
+
+interface StartAction extends Action {
+    type: ActionNames.Start;
+    payload: {isMeSente: boolean};
 }
 
 interface MoveAction extends Action {
@@ -34,6 +40,11 @@ interface NariChoiceAction extends Action {
     };
 }
 
+export const gameStart = (isMeSente: boolean) => ({
+   type: ActionNames.Start,
+   payload: {isMeSente}
+});
+
 export const pieceMove = (move: Move): MoveAction => ({
     type: ActionNames.MovePiece,
     payload: {move}
@@ -54,6 +65,7 @@ export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => 
 });
 
 export enum PlayingStatus {
+    NotStarted,         //対局開始前
     Thinking,           //自分の考慮中
     SelectPiece,        //駒選択中
     ChoiceNari,         //成駒選択中
@@ -83,14 +95,14 @@ export interface GameState {
     moves: Move[];
 }
 
-export type GameActions = MoveAction | SelectPieceAction | NariChoiceAction | CancelMoveAction;
+export type GameActions = StartAction | MoveAction | SelectPieceAction | NariChoiceAction | CancelMoveAction;
 
 //stateの初期値
 const initialState: GameState = {
-    playingStatus: PlayingStatus.Thinking,
-    isMeSente: false,
+    playingStatus: PlayingStatus.NotStarted,
+    isMeSente: true,
     position: new PiecePosition(),
-    isMyTurn: false,
+    isMyTurn: true,
     selectedPiece: null,
     selectedLegalMoves: [],
     nariChoiceMove: {nari: null, narazu: null},
@@ -104,6 +116,13 @@ export default function reducer(state: GameState = initialState, action: Action 
         selectedLegalMoves: [],
     };
     switch (gameAction.type) {
+        case ActionNames.Start:
+            return {
+                ...state,
+                playingStatus: gameAction.payload.isMeSente ? PlayingStatus.Thinking : PlayingStatus.WaitOpponentMove,
+                isMeSente: gameAction.payload.isMeSente,
+                isMyTurn: gameAction.payload.isMeSente,
+            }
         case ActionNames.MovePiece:
             const nextState = {
                 ...state,

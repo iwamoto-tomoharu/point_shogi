@@ -81,7 +81,7 @@ describe("ShogiRule", () => {
             it("成り選択不要", () => {
                 pPosition.next(new Move(7, 7, 7, 6, new Piece( PieceType.fu, true)));
                 pPosition.next(new Move(3, 3, 3, 4, new Piece( PieceType.fu, false)));
-                const isNeed = ShogiRule.isNeedChoiceNari(pPosition, new Move(7, 6, 7, 5, new Piece(PieceType.fu, true)));
+                const isNeed = ShogiRule.isNeedChoiceNari(pPosition, new Move(2, 7, 2, 6, new Piece(PieceType.fu, true)));
                 expect(isNeed).toBeFalsy();
             });
         });
