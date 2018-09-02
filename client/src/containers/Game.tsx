@@ -4,7 +4,6 @@ import {ReduxAction, ReduxState} from "../Store";
 import store from "../Store";
 import GameActionDispatcher from "../action_dispatchers/GameActionDispatcher";
 import {Game} from "../components/game/Game";
-import {GameState} from "../modules/GameModule";
 
 export default connect(
   (state: ReduxState) => ({value: state.game}),

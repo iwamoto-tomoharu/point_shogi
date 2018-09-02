@@ -8,11 +8,12 @@ export default class Data {
      */
     public toJSON(): Json {
         const obj: Json = {};
-        for(let key in this) {
-            if (this[key] != null && typeof this[key] == "object") {
-                obj[key] = this[key].toJSON();
+        const that: {[key: string]: any} = this;
+        for(let key in that) {
+            if (that[key] != null && typeof that[key] == "object") {
+                obj[key] = that[key].toJSON();
             }else {
-                obj[key] = this[key];
+                obj[key] = that[key];
             }
         }
         return obj;

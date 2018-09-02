@@ -6,6 +6,7 @@ import BoardPiece from "../../../../lib/data/BoardPiece";
 import PieceComponent from "./PieceComponent";
 import {PlayingStatus} from "../../modules/GameModule";
 import Piece from "../../../../lib/data/Piece";
+import PointText from "./PointText";
 
 /**
  * 盤面
@@ -17,6 +18,7 @@ export default class Board extends React.Component<Props, {}> {
                 <img src="image/game/board.png" className={styles.imgBoard}/>
                 <div className={styles.pieceArea}>
                     {this.boardPieces()}
+                    {this.pointText()}
                     {this.props.value.playingStatus === PlayingStatus.ChoiceNari ? this.choiceNariPiece(this.props.value.isMeSente) : null}
                 </div>
             </div>
@@ -33,6 +35,13 @@ export default class Board extends React.Component<Props, {}> {
         }else {
             return this.normalBoardPieces();
         }
+    }
+
+    private pointText(): React.ReactElement<Props> {
+        if(!this.props.value.animation.isStartPointEffect) return null;
+        const pointComponent = <PointText point={this.props.value.point.value}/>;
+        const move = this.props.value.point.move;
+        return Board.pointSquare(move.toX, move.toY, move.piece.isSente, pointComponent);
     }
 
     /**
@@ -56,16 +65,6 @@ export default class Board extends React.Component<Props, {}> {
     }
 
     /**
-     * 駒にクリックイベントを付与するか
-     * @param {Piece} piece
-     * @returns {boolean}
-     */
-    private isAddClick(piece: Piece): boolean {
-        if(this.props.value.playingStatus !== PlayingStatus.Thinking) return false;
-        return piece && this.props.value.isMeSente === piece.isSente;
-    }
-
-    /**
      * 駒選択中盤面の駒DOM生成
      * @returns {React.ReactElement<Props>[]}
      */
@@ -84,7 +83,7 @@ export default class Board extends React.Component<Props, {}> {
                     const isSelected = boardPiece.equal(this.props.value.selectedPiece);
                     squaresDom.push(Board.piece(boardPiece, this.props.value.isMeSente, isSelected, isOffFilter, clickAction));
                 }else {
-                    squaresDom.push(Board.square(x, y, this.props.value.isMeSente, isOffFilter, clickAction, null));
+                    squaresDom.push(Board.pieceSquare(x, y, this.props.value.isMeSente, isOffFilter, clickAction, null));
                 }
             }
         }
@@ -137,7 +136,7 @@ export default class Board extends React.Component<Props, {}> {
         const isFront = boardPiece.isSente && isMeSente || !boardPiece.isSente && !isMeSente;
         const pieceComponent = <PieceComponent piece={boardPiece} isFront={isFront}
                                                className={isSelected ? styles.imgPieceSelected : styles.imgPieceNormal}/>;
-        return this.square(boardPiece.x ,boardPiece.y, isMeSente, isOffFilter, clickAction, pieceComponent);
+        return this.pieceSquare(boardPiece.x ,boardPiece.y, isMeSente, isOffFilter, clickAction, pieceComponent);
     }
 
     /**
@@ -150,11 +149,34 @@ export default class Board extends React.Component<Props, {}> {
      * @param {React.ReactElement<Props>} child
      * @returns {React.ReactElement<Props>}
      */
-    private static square(x: number, y: number, isMeSente: boolean, isOffFilter: boolean,
+    private static pieceSquare(x: number, y: number, isMeSente: boolean, isOffFilter: boolean,
                           clickAction: () => void, child: React.ReactElement<Props>): React.ReactElement<Props> {
         //駒の位置
         const boardX = isMeSente ? x : 10 - x;
         const boardY = isMeSente ? y : 10 - y;
+        const parentStyle = this.squareStyle(boardX, boardY, isOffFilter);
+        return (
+            <div className={styles.pieceSquareArea} style={parentStyle} onClick={clickAction} key={`${boardX}${boardY}`}>
+                {child}
+            </div>
+        );
+    }
+
+    private static pointSquare(x: number, y: number, isMeSente: boolean, child: React.ReactElement<Props>): React.ReactElement<Props> {
+        //駒の位置
+        const boardX = isMeSente ? x : 10 - x;
+        const boardY = isMeSente ? y : 10 - y;
+        const parentStyle = this.squareStyle(boardX, boardY, false);
+        return (
+            <div className={styles.pointSquareArea} style={parentStyle}>
+                {child}
+            </div>
+        );
+
+    }
+
+
+    private static squareStyle(boardX: number, boardY: number, isOffFilter: boolean): {[key: string]: string} {
         const left = 10 * (9 - boardX) + 5;
         const top = 85 - 10 * (9 - boardY);
         const parentStyle = {
@@ -162,11 +184,20 @@ export default class Board extends React.Component<Props, {}> {
             top: `${top}%`,
             background: `rgba(0, 0, 0, ${isOffFilter ? 0.2 : 0}`,
         };
-        return (
-            <div className={styles.squareArea} style={parentStyle} onClick={clickAction} key={`${boardX}${boardY}`}>
-                {child}
-            </div>
-        );
+        return parentStyle;
+    }
+
+    /**
+     * 駒にクリックイベントを付与するか
+     * @param {Piece} piece
+     * @returns {boolean}
+     */
+    private isAddClick(piece: Piece): boolean {
+        if(this.props.value.playingStatus === PlayingStatus.Ended) return false;
+        if(this.props.value.playingStatus !== PlayingStatus.Thinking) return false;
+        if(!piece) return false;
+        if(this.props.value.isMeSente !== piece.isSente) return false;
+        return true;
     }
 
     /**

@@ -5,7 +5,7 @@ import {
     GameState,
     nariChoice,
     NariChoiceMove,
-    pieceMove,
+    pieceMove, pointEffectStart, resign, resignDialogOpen,
     selectPiece
 } from "../modules/GameModule";
 import Move from "../../../lib/data/Move";
@@ -54,6 +54,10 @@ export default class GameActionDispatcher {
             this.dispatch(nariChoice(GameActionDispatcher.getNariChoiceMoves(move)));
             return;
         }
+        //TODO: ポイント計算
+        const point = 60;
+        this.dispatch(pointEffectStart(true, move, point));
+
         //駒移動
         this.dispatch(pieceMove(move));
         this.moveOpponentPiece(this.state.position);
@@ -77,6 +81,28 @@ export default class GameActionDispatcher {
      */
     public cancelSelectMyPiece(): void {
         this.dispatch(cancelMove());
+    }
+
+    /**
+     * 投了する
+     */
+    public resign(): void {
+        this.closeResignDialog();
+        this.dispatch(resign());
+    }
+
+    /**
+     * 投了ダイアログを開く
+     */
+    public openResignDialog(): void {
+        this.dispatch(resignDialogOpen(true));
+    }
+
+    /**
+     * 投了ダイアログを閉じる
+     */
+    public closeResignDialog(): void {
+        this.dispatch(resignDialogOpen(false));
     }
 
     /**
@@ -153,7 +179,7 @@ export default class GameActionDispatcher {
     }
 
     /**
-     *
+     * 振り駒実行
      * @returns {boolean}
      */
     private static execFurigoma(): boolean {

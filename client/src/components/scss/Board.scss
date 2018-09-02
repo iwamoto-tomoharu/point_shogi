@@ -1,4 +1,5 @@
 .boardArea {
+  z-index: 1;
   position: relative;
   height: 100%;
   overflow : hidden;
@@ -22,11 +23,15 @@
   height: 71.2%;
 }
 
-.squareArea {
+.pieceSquareArea {
   position: absolute;
   width: 10%;
   height: 10%;
   background: rgba(0, 0, 0, 0);
+}
+
+.pointSquareArea {
+  position: absolute;
 }
 
 .imgPiece {

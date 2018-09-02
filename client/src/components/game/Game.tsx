@@ -3,7 +3,8 @@ import * as styles from "../scss/Game.scss";
 import Props from "./Props";
 import Board from "./Board";
 import Hand from "./Hand";
-import {GameState, PlayingStatus} from "../../modules/GameModule";
+import {PlayingStatus} from "../../modules/GameModule";
+import {HeadButtons} from "./HeadButtons";
 
 export class Game extends React.Component<Props, {}> {
     public render(): React.ReactElement<Props> {
@@ -11,6 +12,7 @@ export class Game extends React.Component<Props, {}> {
         window.addEventListener("beforeunload", () => this.props.actions.closePage());
         return (
             <div className={styles.gameArea}>
+                <HeadButtons value={this.props.value} actions={this.props.actions}/>
                 <Hand value={this.props.value} actions={this.props.actions} isMe={false} />
                 <Board value={this.props.value} actions={this.props.actions}/>
                 <Hand value={this.props.value} actions={this.props.actions} isMe={true} />

@@ -10,6 +10,9 @@ enum ActionNames {
     SelectPiece = "game/select_piece",
     NariChoice = "game/nari_choice",
     CancelPiece = "game/cancel_piece",
+    StartPointEffect = "game/start_point_effect",
+    OpenResignDialog = "game/open_resign_dialog",
+    Resign           = "game/resign",
 }
 
 interface StartAction extends Action {
@@ -40,7 +43,27 @@ interface NariChoiceAction extends Action {
     };
 }
 
-export const gameStart = (isMeSente: boolean) => ({
+interface StartPointEffectAction extends Action {
+    type: ActionNames.StartPointEffect;
+    payload: {
+        isStart: boolean,
+        move?: Move,
+        point?: number,
+    };
+}
+
+interface OpenResignDialogAction extends Action {
+    type: ActionNames.OpenResignDialog;
+    payload: {
+        isOpen: boolean
+    };
+}
+
+interface ResignAction extends Action {
+    type: ActionNames.Resign;
+}
+
+export const gameStart = (isMeSente: boolean): StartAction => ({
    type: ActionNames.Start,
    payload: {isMeSente}
 });
@@ -61,8 +84,23 @@ export const selectPiece = (boardPiece: BoardPiece, selectedLegalMoves: Move[]):
 
 export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => ({
     type: ActionNames.NariChoice,
-    payload: {nariChoiceMove: nariChoiceMove},
+    payload: {nariChoiceMove},
 });
+
+export const pointEffectStart = (isStart: boolean, move: Move, point: number): StartPointEffectAction => ({
+    type: ActionNames.StartPointEffect,
+    payload: {isStart, move, point}
+});
+
+export const resignDialogOpen = (isOpen: boolean): OpenResignDialogAction => ({
+    type: ActionNames.OpenResignDialog,
+    payload: {isOpen}
+});
+
+export const resign = (): ResignAction => ({
+    type: ActionNames.Resign,
+});
+
 
 export enum PlayingStatus {
     NotStarted,         //対局開始前
@@ -70,6 +108,7 @@ export enum PlayingStatus {
     SelectPiece,        //駒選択中
     ChoiceNari,         //成駒選択中
     WaitOpponentMove,   //相手の着手待ち中
+    Ended,              //対局終了
 }
 
 export interface NariChoiceMove {
@@ -93,20 +132,34 @@ export interface GameState {
     nariChoiceMove: NariChoiceMove;
     //棋譜
     moves: Move[];
+    //ポイント
+    point: {
+        move: Move,
+        value: number,
+    };
+    //アニメーションの状態
+    animation: {isStartPointEffect: boolean};
+    //投了ダイアログ
+    isOpenResignDialog: boolean;
 }
 
-export type GameActions = StartAction | MoveAction | SelectPieceAction | NariChoiceAction | CancelMoveAction;
+export type GameActions =
+    StartAction | MoveAction | SelectPieceAction | NariChoiceAction |
+    CancelMoveAction | StartPointEffectAction | OpenResignDialogAction | ResignAction;
 
 //stateの初期値
 const initialState: GameState = {
     playingStatus: PlayingStatus.NotStarted,
     isMeSente: true,
-    position: new PiecePosition(),
     isMyTurn: true,
+    position: new PiecePosition(),
     selectedPiece: null,
     selectedLegalMoves: [],
     nariChoiceMove: {nari: null, narazu: null},
     moves: [],
+    point: {move: null, value: 0},
+    animation: {isStartPointEffect: false},
+    isOpenResignDialog: false,
 };
 
 export default function reducer(state: GameState = initialState, action: Action | GameActions): GameState {
@@ -122,7 +175,8 @@ export default function reducer(state: GameState = initialState, action: Action 
                 playingStatus: gameAction.payload.isMeSente ? PlayingStatus.Thinking : PlayingStatus.WaitOpponentMove,
                 isMeSente: gameAction.payload.isMeSente,
                 isMyTurn: gameAction.payload.isMeSente,
-            }
+                position: new PiecePosition(),
+            };
         case ActionNames.MovePiece:
             const nextState = {
                 ...state,
@@ -146,12 +200,33 @@ export default function reducer(state: GameState = initialState, action: Action 
                 playingStatus: PlayingStatus.ChoiceNari,
                 nariChoiceMove: gameAction.payload.nariChoiceMove,
             };
-
         case ActionNames.CancelPiece:
             return {
                 ...state,
                 ...selectOff,
                 playingStatus: PlayingStatus.Thinking,
+            };
+        case ActionNames.StartPointEffect:
+            return {
+                ...state,
+                point: {
+                    move: gameAction.payload.move,
+                    value: gameAction.payload.point
+                },
+                animation: {
+                    ...state.animation,
+                    isStartPointEffect: gameAction.payload.isStart
+                }
+            };
+        case ActionNames.OpenResignDialog:
+            return {
+                ...state,
+                isOpenResignDialog: gameAction.payload.isOpen
+            };
+        case ActionNames.Resign:
+            return {
+                ...state,
+                playingStatus: PlayingStatus.Ended,
             };
          default:
              return state;

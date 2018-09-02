@@ -5,6 +5,8 @@ import ShogiUtility from "../../../../lib/utility/ShogiUtility";
 import * as styles from "../scss/Hand.scss";
 import PieceComponent from "./PieceComponent";
 import BoardPiece from "../../../../lib/data/BoardPiece";
+import {PlayingStatus} from "../../modules/GameModule";
+import Piece from "../../../../lib/data/Piece";
 
 interface HandProps extends Props {
     //自分の持ち駒か
@@ -31,17 +33,28 @@ export default class Hand extends React.Component<HandProps, {}> {
         for(let i = 0; i < targetPieces.length; i++) {
             const boardPiece = new BoardPiece(targetPieces[i].type, targetPieces[i].isSente, 0, 0);
             const isSelected = boardPiece.equal(this.props.value.selectedPiece);
-            //自分の手番で自分の駒のみクリックイベント追加
-            const isAddClick = this.props.value.isMyTurn && this.props.value.isMeSente === targetPieces[i].isSente;
             let onClick;
             if(isSelected) {
                 onClick = () => this.props.actions.cancelSelectMyPiece();
             } else {
-                onClick = isAddClick ? () => this.props.actions.selectMyPiece(boardPiece) : null;
+                //自分の手番で自分の駒のみクリックイベント追加
+                onClick =  this.isAddClick(targetPieces[i]) ? () => this.props.actions.selectMyPiece(boardPiece) : null;
             }
             components.push(Hand.capturedPieceComponent(targetPieces[i], isSelected, i, this.props.isMe, onClick));
         }
         return components;
+    }
+
+    /**
+     * 駒にクリックイベントを付与するか
+     * @param {Piece} piece
+     * @returns {boolean}
+     */
+    private isAddClick(piece: Piece): boolean {
+        if(this.props.value.playingStatus === PlayingStatus.Ended) return false;
+        if(this.props.value.playingStatus !== PlayingStatus.Thinking) return false;
+        if(this.props.value.isMeSente !== piece.isSente) return false;
+        return true;
     }
 
     /**
