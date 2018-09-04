@@ -11,17 +11,12 @@ export default class AnalysisTransceiver extends WebSocketTransceiver {
         const receiveData: AnalysisRequestData = AnalysisRequestData.fromJSON(messageObj);
         //エンジン実行
         (async () => {
-            try {
-                const data: EngineResponseData = await EngineController.instance()
-                    .exec(receiveData.piecePosition, receiveData.engineCommand, receiveData.engineOption);
-                const sendData: AnalysisResponseData = new AnalysisResponseData(data);
-                //エンジン解析結果をクライアントに送信
-                const sendStr: string = JSON.stringify(sendData.toJSON());
-                this.send(sendStr);
-            } catch (err) {
-                console.error(err);
-            }
-
+            const data: EngineResponseData = await EngineController.instance()
+                .exec(receiveData.piecePosition, receiveData.engineCommand, receiveData.engineOption);
+            const sendData: AnalysisResponseData = new AnalysisResponseData(receiveData.apiName, data);
+            //エンジン解析結果をクライアントに送信
+            const sendStr: string = JSON.stringify(sendData);
+            this.send(sendStr);
         })();
     }
 

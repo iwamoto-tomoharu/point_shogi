@@ -22,8 +22,7 @@ describe("PiecePosition", () => {
         pPosition.next(new Move(7, 7, 7, 6, new Piece( PieceType.fu, true)));
         pPosition.next(new Move(3, 3, 3, 4, new Piece( PieceType.fu, false)));
         pPosition.next(new Move(8, 8, 2, 2, new Piece( PieceType.uma, true)));
-        const json = pPosition.toJSON();
-        const cnvPosition = PiecePosition.fromJSON(json);
+        const cnvPosition = PiecePosition.fromJSON(pPosition);
         expect(cnvPosition.getPiece(7, 6)).toBeDefined();
         expect(cnvPosition.getPiece(7, 7)).toBeNull();
         expect(cnvPosition.getPiece(3, 4)).toBeDefined();

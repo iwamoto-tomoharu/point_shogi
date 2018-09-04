@@ -1,13 +1,11 @@
 import EngineCommandType from "./enum/EngineCommandType";
-import PiecePosition from "./PiecePosition";
 import Json from "./api/Json";
-import Data from "./Data";
 
-export default class EngineCommand extends Data {
+export default class EngineCommand {
     constructor(
         private _type: EngineCommandType,
         private _value: number,
-    ){super();}
+    ){}
 
 
     get type(): EngineCommandType {

@@ -1,18 +1,15 @@
 import Piece from "./Piece";
 import PiecePosition from "./PiecePosition";
 import Json from "./api/Json";
-import Data from "./Data";
 
-export default class Move extends Data {
+export default class Move {
     //移動は1〜9で表す
     //0は持ち駒
     constructor(private _fromX: number,
                 private _fromY: number,
                 private _toX: number,
                 private _toY: number,
-                private _piece: Piece) {
-        super();
-    }
+                private _piece: Piece) {}
 
     get fromX(): number {
         return this._fromX;

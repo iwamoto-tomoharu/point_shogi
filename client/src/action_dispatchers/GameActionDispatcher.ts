@@ -14,13 +14,14 @@ import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
 import EngineOption from "../../../lib/data/EngineOption";
 import AnalysisResponseData from "../../../lib/data/api/AnalysisResponseData";
 import AnalysisRequestData from "../../../lib/data/api/AnalysisRequestData";
-import AnalysisTransceiver from "../web_client/AnalysisTransceiver";
+import AnalysisTransceiver from "../model/web_client/AnalysisTransceiver";
 import PiecePosition from "../../../lib/data/PiecePosition";
 import {Store} from "redux";
 import BoardPiece from "../../../lib/data/BoardPiece";
 import ShogiRule from "../../../lib/ShogiRule";
 import ShogiUtility from "../../../lib/utility/ShogiUtility";
 import Piece from "../../../lib/data/Piece";
+import ApiName from "../../../lib/data/enum/ApiName";
 
 // こちらの記事を参考
 // https://qiita.com/uryyyyyyy/items/d8bae6a7fca1c4732696
@@ -54,13 +55,27 @@ export default class GameActionDispatcher {
             this.dispatch(nariChoice(GameActionDispatcher.getNariChoiceMoves(move)));
             return;
         }
-        //TODO: ポイント計算
-        const point = 60;
-        this.dispatch(pointEffectStart(true, move, point));
 
         //駒移動
         this.dispatch(pieceMove(move));
+
+        //ポイント計算
+        (async () => {
+            const ply = this.state.moves.length + 1;
+            const point = Math.round(Math.random() * 200 - 100);
+            // const point = await this.state.point.calculator.execAnalysisAndCalcPoint(this.state.position, ply);
+            this.dispatch(pointEffectStart(true, this.state.point.calculator, point));
+        })();
+
+        //相手の着手
         this.moveOpponentPiece(this.state.position);
+    }
+
+    /**
+     * 点数エフェクトの終了
+     */
+    public endPointEffect(): void {
+        this.dispatch(pointEffectStart(false, this.state.point.calculator));
     }
 
     /**
@@ -130,16 +145,11 @@ export default class GameActionDispatcher {
         const command: EngineCommand = new EngineCommand(EngineCommandType.nodes, 100000);
         const option: EngineOption = new EngineOption();
         option.ownBook = false;
-        const requestData: AnalysisRequestData = new AnalysisRequestData(position, command, option);
+        const requestData: AnalysisRequestData = new AnalysisRequestData(ApiName.analysisMove, position, command, option);
         const analysisTransceiver: AnalysisTransceiver = new AnalysisTransceiver();
         (async () => {
-            try {
-                const data: AnalysisResponseData = await analysisTransceiver.analyze(requestData);
-                console.log(data);
-                this.dispatch(pieceMove(data.bestMove));
-            } catch (err) {
-                console.error(err);
-            }
+            const data: AnalysisResponseData = await analysisTransceiver.analyze(requestData);
+            this.dispatch(pieceMove(data.bestMove));
         })();
     }
 

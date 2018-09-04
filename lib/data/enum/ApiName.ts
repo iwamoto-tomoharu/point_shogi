@@ -1,4 +1,5 @@
 enum ApiName {
-    analysis
+    analysisMove,
+    analysisPoint,
 }
 export default ApiName;

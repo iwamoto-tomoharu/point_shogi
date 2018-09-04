@@ -26,7 +26,7 @@ export default class Board extends React.Component<Props, {}> {
     }
 
     /**
-     * 盤面の駒DOM生成
+     * 盤面の駒
      * @returns {React.ReactElement<Props>[]}
      */
     private boardPieces(): React.ReactElement<Props>[] {
@@ -37,15 +37,24 @@ export default class Board extends React.Component<Props, {}> {
         }
     }
 
+    /**
+     * 指し手の点数
+     * @returns {React.ReactElement<Props>}
+     */
     private pointText(): React.ReactElement<Props> {
-        if(!this.props.value.animation.isStartPointEffect) return null;
-        const pointComponent = <PointText point={this.props.value.point.value}/>;
-        const move = this.props.value.point.move;
-        return Board.pointSquare(move.toX, move.toY, move.piece.isSente, pointComponent);
+        const pointComponent = <PointText isStart={this.props.value.animation.isStartPointEffect}
+                                          point={this.props.value.point.latestValue}
+                                          endPointEffectCallback={() => this.props.actions.endPointEffect()}/>;
+        const move = this.props.value.moves[this.props.value.moves.length - 1];
+        if(!!move) {
+            return Board.pointSquare(move.toX, move.toY, move.piece.isSente, pointComponent);
+        } else {
+            return <div>{pointComponent}</div>;
+        }
     }
 
     /**
-     * 通常盤面の駒DOM生成
+     * 通常盤面の駒
      * @returns {React.ReactElement<Props>[]}
      */
     private normalBoardPieces(): React.ReactElement<Props>[] {
@@ -65,7 +74,7 @@ export default class Board extends React.Component<Props, {}> {
     }
 
     /**
-     * 駒選択中盤面の駒DOM生成
+     * 駒選択中盤面の駒
      * @returns {React.ReactElement<Props>[]}
      */
     private selectedBoardPieces(): React.ReactElement<Props>[] {
@@ -175,7 +184,13 @@ export default class Board extends React.Component<Props, {}> {
 
     }
 
-
+    /**
+     * 1つのマス目のstyle
+     * @param {number} boardX
+     * @param {number} boardY
+     * @param {boolean} isOffFilter
+     * @returns {{[p: string]: string}}
+     */
     private static squareStyle(boardX: number, boardY: number, isOffFilter: boolean): {[key: string]: string} {
         const left = 10 * (9 - boardX) + 5;
         const top = 85 - 10 * (9 - boardY);

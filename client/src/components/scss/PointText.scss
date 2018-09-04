@@ -1,4 +1,39 @@
-.pointText {
-  margin-left: 80%;
-  margin-top: -30%;
+.text {
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.0rem;
+  left: 50%;
+  opacity: 1;
+}
+
+.textPlus {
+  @extend .text;
+  color: blue;
+}
+
+.textPlusEnter {
+  opacity: 1;
+  transform: translateY(0%);
+}
+
+.textPlusEnterActive {
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 1500ms ease;
+}
+
+.textMinus {
+  @extend .text;
+  color: red;
+}
+
+.textMinusEnter {
+  opacity: 1;
+  transform: translateY(-100%);
+}
+
+.textMinusEnterActive {
+  opacity: 0;
+  transform: translateY(0%);
+  transition: all 2000ms ease;
 }

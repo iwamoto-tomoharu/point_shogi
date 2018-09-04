@@ -1,8 +1,6 @@
 import Json from "./api/Json";
-import ApiData from "./api/ApiData";
-import Data from "./Data";
 
-export default class EngineOption extends Data{
+export default class EngineOption{
 
     private _ownBook: boolean = true;
     private _bookFile: string = "book.bin";
@@ -31,7 +29,7 @@ export default class EngineOption extends Data{
     }
 
     public toEngineValue(): {[key: string]: any} {
-        const jsonObj: Json = this.toJSON();
+        const jsonObj: Json = this;
         const engineValue: {[key: string]: any} = {};
         //パスカルケースに変換
         for(let key in jsonObj) {

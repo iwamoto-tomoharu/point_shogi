@@ -4,11 +4,11 @@ import ApiData from "./ApiData";
 import ApiName from "../enum/ApiName";
 import Json from "./Json";
 
-export default class AnalysisResponseData extends EngineResponseData implements ApiData {
+export default class AnalysisResponseData extends EngineResponseData {
 
-    public readonly apiName: ApiName = ApiName.analysis;
-
-    constructor(engineData: EngineResponseData) {
+    constructor(
+        private _apiName: ApiName,
+        engineData: EngineResponseData) {
         super(engineData.status, engineData.evaluation, engineData.bestMove,
               engineData.isResign, engineData.isNyugyoku);
     }
@@ -20,6 +20,7 @@ export default class AnalysisResponseData extends EngineResponseData implements 
      */
     public static fromJSON(obj: Json): AnalysisResponseData {
         return new AnalysisResponseData(
+            obj._apiName,
             new EngineResponseData(
             obj._status,
             obj._evaluation,

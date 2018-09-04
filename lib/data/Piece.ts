@@ -1,11 +1,8 @@
 import PieceType from "./enum/PieceType";
-import Data from "./Data";
 import Json from "./api/Json";
 
-export default class Piece extends Data {
-    constructor(private _type:PieceType, private _isSente: boolean) {
-        super();
-    }
+export default class Piece {
+    constructor(private _type:PieceType, private _isSente: boolean) {}
 
     get type(): PieceType {
         return this._type;

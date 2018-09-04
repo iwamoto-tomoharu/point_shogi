@@ -1,14 +1,13 @@
 import Move from "./Move";
-import Data from "./Data";
 
-export default class EngineResponseData extends Data {
+export default class EngineResponseData {
     constructor(
         protected _status: boolean,
         protected _evaluation: number,
         protected _bestMove: Move,
         protected _isResign: boolean,
         protected _isNyugyoku: boolean,
-    ){super();}
+    ){}
 
 
     get status(): boolean {

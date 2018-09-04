@@ -1,5 +1,5 @@
-import ApiName from "../../../lib/data/enum/ApiName";
-import Json from "../../../lib/data/api/Json";
+import ApiName from "../../../../lib/data/enum/ApiName";
+import Json from "../../../../lib/data/api/Json";
 
 export default class WebSocketClient {
     private static readonly URL: string = "ws://localhost:8081";
@@ -43,7 +43,7 @@ export default class WebSocketClient {
      * @param {Json} data
      * @returns {Promise<any>}
      */
-    public async send(data: Json): Promise<any> {
+    public async send(data: Json): Promise<void> {
         if(!this.isOpen()) {
             await this.connect();
         }
@@ -96,7 +96,7 @@ export default class WebSocketClient {
         if (!(event && event.data)) return;
         console.log(`[client <- server] ${event.data}`);
         const messageObj: Json = JSON.parse(event.data);
-        const apiName: ApiName = Number(messageObj.apiName);
+        const apiName: ApiName = Number(messageObj._apiName);
         //登録されていたリスナーを呼び出す
         if(this.receiveListeners.hasOwnProperty(apiName)) {
             this.receiveListeners[apiName](messageObj);

@@ -4,11 +4,10 @@ import Move from "./Move";
 import Vector from "./Vector";
 import PieceType from "./enum/PieceType";
 import ShogiUtility from "../utility/ShogiUtility";
-import Data from "./Data";
 import Json from "./api/Json";
 import InvalidMoveError from "../error/InvalidMoveError";
 
-export default class PiecePosition extends Data {
+export default class PiecePosition {
     private static readonly SFEN_HAVE_PIECE_MAP: {[key: string]: PieceType} = {
         "P": PieceType.fu,
         "L": PieceType.kyo,
@@ -41,7 +40,6 @@ export default class PiecePosition extends Data {
         private _capturedPieces: CapturedPiece[] = [],
         private _isTurnSente: boolean = true,
     ) {
-        super();
         this._position = _position || this.initPosition();
     }
 
@@ -222,7 +220,7 @@ export default class PiecePosition extends Data {
         for(let x = 0; x < 9; x++) {
             posObj[x] = new Array(9);
             for(let y = 0; y < 9; y++) {
-                posObj[x][y] = this._position[x][y] ? this._position[x][y].toJSON() : null;
+                posObj[x][y] = this._position[x][y];
             }
         }
         return posObj;
@@ -251,7 +249,7 @@ export default class PiecePosition extends Data {
     private toHavePiecesJSON(): Json[] {
         const capturedPiecesObj = [];
         for(let capturedPiece of this._capturedPieces) {
-            capturedPiecesObj.push(capturedPiece.toJSON());
+            capturedPiecesObj.push(capturedPiece);
         }
         return capturedPiecesObj;
     }

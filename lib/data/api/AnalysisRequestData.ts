@@ -4,18 +4,20 @@ import ApiName from "../enum/ApiName";
 import EngineCommand from "../EngineCommand";
 import Json from "./Json";
 import EngineOption from "../EngineOption";
-import Data from "../Data";
 
-export default class AnalysisRequestData extends Data implements ApiData {
-
-    public readonly apiName: ApiName = ApiName.analysis;
+export default class AnalysisRequestData {
 
     constructor(
+        private _apiName: ApiName,
         private _piecePosition: PiecePosition,
         private _engineCommand: EngineCommand,
         private _engineOption: EngineOption,
-    ){super();}
+    ){}
 
+
+    get apiName(): ApiName {
+        return this._apiName;
+    }
 
     get piecePosition(): PiecePosition {
         return this._piecePosition;
@@ -36,6 +38,7 @@ export default class AnalysisRequestData extends Data implements ApiData {
      */
     public static fromJSON(obj: Json): AnalysisRequestData {
         return new AnalysisRequestData(
+            obj._apiName,
             PiecePosition.fromJSON(obj._piecePosition),
             EngineCommand.fromJSON(obj._engineCommand),
             EngineOption.fromJSON(obj._engineOption),

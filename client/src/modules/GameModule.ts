@@ -3,6 +3,7 @@ import Move from "../../../lib/data/Move";
 import PiecePosition from "../../../lib/data/PiecePosition";
 import Piece from "../../../lib/data/Piece";
 import BoardPiece from "../../../lib/data/BoardPiece";
+import PointCalculator from "../model/PointCalculator";
 
 enum ActionNames {
     Start       = "game/start",
@@ -47,8 +48,8 @@ interface StartPointEffectAction extends Action {
     type: ActionNames.StartPointEffect;
     payload: {
         isStart: boolean,
-        move?: Move,
-        point?: number,
+        pointCalculator: PointCalculator,
+        point: number,
     };
 }
 
@@ -87,9 +88,9 @@ export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => 
     payload: {nariChoiceMove},
 });
 
-export const pointEffectStart = (isStart: boolean, move: Move, point: number): StartPointEffectAction => ({
+export const pointEffectStart = (isStart: boolean,  pointCalculator: PointCalculator, point?: number): StartPointEffectAction => ({
     type: ActionNames.StartPointEffect,
-    payload: {isStart, move, point}
+    payload: {isStart, pointCalculator, point}
 });
 
 export const resignDialogOpen = (isOpen: boolean): OpenResignDialogAction => ({
@@ -134,8 +135,8 @@ export interface GameState {
     moves: Move[];
     //ポイント
     point: {
-        move: Move,
-        value: number,
+        latestValue: number,
+        calculator: PointCalculator,
     };
     //アニメーションの状態
     animation: {isStartPointEffect: boolean};
@@ -157,7 +158,10 @@ const initialState: GameState = {
     selectedLegalMoves: [],
     nariChoiceMove: {nari: null, narazu: null},
     moves: [],
-    point: {move: null, value: 0},
+    point: {
+        latestValue: null,
+        calculator: new PointCalculator(),
+    },
     animation: {isStartPointEffect: false},
     isOpenResignDialog: false,
 };
@@ -170,12 +174,12 @@ export default function reducer(state: GameState = initialState, action: Action 
     };
     switch (gameAction.type) {
         case ActionNames.Start:
+            state = initialState;
             return {
                 ...state,
                 playingStatus: gameAction.payload.isMeSente ? PlayingStatus.Thinking : PlayingStatus.WaitOpponentMove,
                 isMeSente: gameAction.payload.isMeSente,
                 isMyTurn: gameAction.payload.isMeSente,
-                position: new PiecePosition(),
             };
         case ActionNames.MovePiece:
             const nextState = {
@@ -210,8 +214,8 @@ export default function reducer(state: GameState = initialState, action: Action 
             return {
                 ...state,
                 point: {
-                    move: gameAction.payload.move,
-                    value: gameAction.payload.point
+                    latestValue: gameAction.payload.point,
+                    calculator: gameAction.payload.pointCalculator,
                 },
                 animation: {
                     ...state.animation,
