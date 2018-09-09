@@ -8,8 +8,6 @@ import {HeadButtons} from "./HeadButtons";
 
 export class Game extends React.Component<Props, {}> {
     public render(): React.ReactElement<Props> {
-        //画面を閉じた時のイベント
-        window.addEventListener("beforeunload", () => this.props.actions.closePage());
         return (
             <div className={styles.gameArea}>
                 <HeadButtons value={this.props.value} actions={this.props.actions}/>

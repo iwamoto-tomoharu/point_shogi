@@ -1,8 +1,7 @@
 import {Action} from "redux";
-import Move from "../../../lib/data/Move";
-import PiecePosition from "../../../lib/data/PiecePosition";
-import Piece from "../../../lib/data/Piece";
-import BoardPiece from "../../../lib/data/BoardPiece";
+import Move from "../../../lib/src/data/Move";
+import PiecePosition from "../../../lib/src/data/PiecePosition";
+import BoardPiece from "../../../lib/src/data/BoardPiece";
 import PointCalculator from "../model/PointCalculator";
 
 enum ActionNames {
@@ -49,6 +48,7 @@ interface StartPointEffectAction extends Action {
     payload: {
         isStart: boolean,
         pointCalculator: PointCalculator,
+        move: Move,
         point: number,
     };
 }
@@ -88,9 +88,9 @@ export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => 
     payload: {nariChoiceMove},
 });
 
-export const pointEffectStart = (isStart: boolean,  pointCalculator: PointCalculator, point?: number): StartPointEffectAction => ({
+export const pointEffectStart = (isStart: boolean,  pointCalculator: PointCalculator, move?: Move, point?: number): StartPointEffectAction => ({
     type: ActionNames.StartPointEffect,
-    payload: {isStart, pointCalculator, point}
+    payload: {isStart, pointCalculator, move, point}
 });
 
 export const resignDialogOpen = (isOpen: boolean): OpenResignDialogAction => ({
@@ -135,6 +135,7 @@ export interface GameState {
     moves: Move[];
     //ポイント
     point: {
+        latestMove: Move,
         latestValue: number,
         calculator: PointCalculator,
     };
@@ -159,6 +160,7 @@ const initialState: GameState = {
     nariChoiceMove: {nari: null, narazu: null},
     moves: [],
     point: {
+        latestMove: null,
         latestValue: null,
         calculator: new PointCalculator(),
     },
@@ -214,6 +216,7 @@ export default function reducer(state: GameState = initialState, action: Action 
             return {
                 ...state,
                 point: {
+                    latestMove: gameAction.payload.move,
                     latestValue: gameAction.payload.point,
                     calculator: gameAction.payload.pointCalculator,
                 },

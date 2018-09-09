@@ -1,9 +1,7 @@
-import PiecePosition from "../data/PiecePosition";
-import Move from "../data/Move";
-import Piece from "../data/Piece";
-import PieceType from "../data/enum/PieceType";
-import ShogiRule from "../ShogiRule";
-import SpecHelpers from "./helpers/SpecHelpers";
+import PiecePosition from "../src/data/PiecePosition";
+import Move from "../src/data/Move";
+import Piece from "../src/data/Piece";
+import PieceType from "../src/data/enum/PieceType";
 
 describe("PiecePosition", () => {
     it("next", () => {

@@ -1,12 +1,12 @@
 import * as React from "react";
 import Props from "./Props";
-import CapturedPiece from "../../../../lib/data/CapturedPiece";
-import ShogiUtility from "../../../../lib/utility/ShogiUtility";
+import CapturedPiece from "../../../../lib/src/data/CapturedPiece";
+import ShogiUtility from "../../../../lib/src/utility/ShogiUtility";
 import * as styles from "../scss/Hand.scss";
 import PieceComponent from "./PieceComponent";
-import BoardPiece from "../../../../lib/data/BoardPiece";
+import BoardPiece from "../../../../lib/src/data/BoardPiece";
 import {PlayingStatus} from "../../modules/GameModule";
-import Piece from "../../../../lib/data/Piece";
+import Piece from "../../../../lib/src/data/Piece";
 
 interface HandProps extends Props {
     //自分の持ち駒か

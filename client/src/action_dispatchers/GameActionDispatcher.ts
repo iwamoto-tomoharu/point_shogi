@@ -8,20 +8,20 @@ import {
     pieceMove, pointEffectStart, resign, resignDialogOpen,
     selectPiece
 } from "../modules/GameModule";
-import Move from "../../../lib/data/Move";
-import EngineCommand from "../../../lib/data/EngineCommand";
-import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
-import EngineOption from "../../../lib/data/EngineOption";
-import AnalysisResponseData from "../../../lib/data/api/AnalysisResponseData";
-import AnalysisRequestData from "../../../lib/data/api/AnalysisRequestData";
-import AnalysisTransceiver from "../model/web_client/AnalysisTransceiver";
-import PiecePosition from "../../../lib/data/PiecePosition";
+import Move from "../../../lib/src/data/Move";
+import EngineCommand from "../../../lib/src/data/EngineCommand";
+import EngineCommandType from "../../../lib/src/data/enum/EngineCommandType";
+import EngineOption from "../../../lib/src/data/EngineOption";
+import AnalysisResponseData from "../../../lib/src/data/api/AnalysisResponseData";
+import AnalysisRequestData from "../../../lib/src/data/api/AnalysisRequestData";
+import AnalysisClient from "../model/web_client/AnalysisClient";
+import PiecePosition from "../../../lib/src/data/PiecePosition";
 import {Store} from "redux";
-import BoardPiece from "../../../lib/data/BoardPiece";
-import ShogiRule from "../../../lib/ShogiRule";
-import ShogiUtility from "../../../lib/utility/ShogiUtility";
-import Piece from "../../../lib/data/Piece";
-import ApiName from "../../../lib/data/enum/ApiName";
+import BoardPiece from "../../../lib/src/data/BoardPiece";
+import ShogiRule from "../../../lib/src/ShogiRule";
+import ShogiUtility from "../../../lib/src/utility/ShogiUtility";
+import Piece from "../../../lib/src/data/Piece";
+import ApiName from "../../../lib/src/data/enum/ApiName";
 
 // こちらの記事を参考
 // https://qiita.com/uryyyyyyy/items/d8bae6a7fca1c4732696
@@ -62,9 +62,8 @@ export default class GameActionDispatcher {
         //ポイント計算
         (async () => {
             const ply = this.state.moves.length + 1;
-            const point = Math.round(Math.random() * 200 - 100);
-            // const point = await this.state.point.calculator.execAnalysisAndCalcPoint(this.state.position, ply);
-            this.dispatch(pointEffectStart(true, this.state.point.calculator, point));
+            const point = await this.state.point.calculator.execAnalysisAndCalcPoint(this.state.position, ply);
+            this.dispatch(pointEffectStart(true, this.state.point.calculator, move, point));
         })();
 
         //相手の着手
@@ -121,15 +120,6 @@ export default class GameActionDispatcher {
     }
 
     /**
-     * ページを閉じる前の動作
-     */
-    public closePage(): void {
-        //必ずサーバとのコネクションを閉じる
-        const analysisTransceiver: AnalysisTransceiver = new AnalysisTransceiver();
-        analysisTransceiver.close();
-    }
-
-    /**
      * 現在のstate(コピー)を取得
      * @returns {GameState}
      */
@@ -145,10 +135,11 @@ export default class GameActionDispatcher {
         const command: EngineCommand = new EngineCommand(EngineCommandType.nodes, 100000);
         const option: EngineOption = new EngineOption();
         option.ownBook = false;
+        option.threads = 1;
         const requestData: AnalysisRequestData = new AnalysisRequestData(ApiName.analysisMove, position, command, option);
-        const analysisTransceiver: AnalysisTransceiver = new AnalysisTransceiver();
+        const client: AnalysisClient = new AnalysisClient();
         (async () => {
-            const data: AnalysisResponseData = await analysisTransceiver.analyze(requestData);
+            const data: AnalysisResponseData = await client.analyze(requestData);
             this.dispatch(pieceMove(data.bestMove));
         })();
     }

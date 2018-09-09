@@ -1,5 +1,5 @@
 import * as ChildProcess from "child_process";
-import Utility from "../../../lib/utility/Utility";
+import Utility from "../../../lib/src/utility/Utility";
 import EngineData from "../data/EngineData";
 
 export default class Engine {
@@ -12,7 +12,7 @@ export default class Engine {
 
 
     private child: ChildProcess.ChildProcess;
-    private _isEnable: boolean = false;
+    private _isUsing: boolean = false;
     private evaluation: number = null;
     private enableListener: () => void;
     private receiveListener: (data: EngineData) => void;
@@ -27,12 +27,16 @@ export default class Engine {
         {regExp: /bestmove (.*)/, listener: this.onDataBestMove.bind(this)},
     ];
 
-    /**
-     * 利用可能か
-     * @returns {boolean}
-     */
-    get isEnable(): boolean {
-        return this._isEnable;
+    constructor() {
+        this._isUsing = true;
+    }
+
+    get isUsing(): boolean {
+        return this._isUsing;
+    }
+
+    set isUsing(value: boolean) {
+        this._isUsing = value;
     }
 
     /**
@@ -60,10 +64,6 @@ export default class Engine {
      */
     public exec(sfen: string, command: string, options: {[key: string]: string}): Promise<EngineData> {
         return new Promise((resolve: (data: EngineData) => void, reject: (err: any) => void) => {
-            if(!this._isEnable) {
-                resolve({status: false});
-                return;
-            }
             try {
                 for(let key in options) {
                     this.send(`setoption name ${key} value ${options[key]}`);
@@ -134,7 +134,6 @@ export default class Engine {
      * @param {RegExpMatchArray} recAry
      */
     private onDataReadyOk(recAry: RegExpMatchArray): void {
-        this._isEnable = true;
         if(this.enableListener) {
             this.enableListener();
             this.enableListener = null;
@@ -162,8 +161,6 @@ export default class Engine {
      * @param {RegExpMatchArray} recAry
      */
     private onDataMate(recAry: RegExpMatchArray): void {
-        console.log("onDataMate");
-        console.log(recAry);
         const mateVal: number = Number(recAry[1]);
         if(!Number.isInteger(mateVal)) return;
         this.evaluation = mateVal >= 0 ? Engine.EVAL_MAX : Engine.EVAL_MIN;
@@ -210,6 +207,7 @@ export default class Engine {
         if(this.receiveListener) {
             this.receiveListener(data);
             this.receiveListener = null;
+            this._isUsing = false;
         }
     }
 

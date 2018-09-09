@@ -1,3 +1,5 @@
+const nodeExternals = require("webpack-node-externals");
+
 module.exports = {
     mode: "development",
     entry: `${__dirname}/src/Main.ts`,
@@ -13,7 +15,7 @@ module.exports = {
                 loader: "ts-loader",
                 options: {
                     configFile: "server/tsconfig.json",
-                }
+                },
             },
             {
                 enforce: "pre",
@@ -27,9 +29,12 @@ module.exports = {
             ".ts", ".js"
         ]
     },
-    externals: {
-        "ws": true,
-        "child_process": true,
-    },
+    externals: [
+        nodeExternals(),
+        {
+            "ws": true,
+            "child_process": true,
+        },
+    ],
     devtool: "source-map"
 }

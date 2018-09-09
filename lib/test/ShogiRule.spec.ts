@@ -1,13 +1,13 @@
-import PiecePosition from "../data/PiecePosition";
-import Move from "../data/Move";
-import Piece from "../data/Piece";
-import PieceType from "../data/enum/PieceType";
-import ShogiRule from "../ShogiRule";
+import PiecePosition from "../src/data/PiecePosition";
+import Piece from "../src/data/Piece";
+import Move from "../src/data/Move";
+import PieceType from "../src/data/enum/PieceType";
+import ShogiRule from "../src/ShogiRule";
 import SpecHelpers from "./helpers/SpecHelpers";
 
 describe("ShogiRule", () => {
     describe("getLegalMoveList", () => {
-        let pPosition;
+        let pPosition: PiecePosition;
         beforeEach(() => {
             pPosition = new PiecePosition();
         });
@@ -39,7 +39,7 @@ describe("ShogiRule", () => {
         });
     });
     describe("isNeedChoiceNari", () => {
-        let pPosition;
+        let pPosition: PiecePosition;
         beforeEach(() => {
             pPosition = new PiecePosition();
         });

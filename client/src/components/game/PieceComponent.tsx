@@ -1,6 +1,6 @@
 import * as React from "react";
-import PieceType from "../../../../lib/data/enum/PieceType";
-import Piece from "../../../../lib/data/Piece";
+import PieceType from "../../../../lib/src/data/enum/PieceType";
+import Piece from "../../../../lib/src/data/Piece";
 
 interface PieceProps {
     piece: Piece;

@@ -1,11 +1,11 @@
 import * as React from "react";
 import Props from "./Props";
-import Move from "../../../../lib/data/Move";
+import Move from "../../../../lib/src/data/Move";
 import * as styles from "../scss/Board.scss";
-import BoardPiece from "../../../../lib/data/BoardPiece";
+import BoardPiece from "../../../../lib/src/data/BoardPiece";
 import PieceComponent from "./PieceComponent";
 import {PlayingStatus} from "../../modules/GameModule";
-import Piece from "../../../../lib/data/Piece";
+import Piece from "../../../../lib/src/data/Piece";
 import PointText from "./PointText";
 
 /**
@@ -45,7 +45,8 @@ export default class Board extends React.Component<Props, {}> {
         const pointComponent = <PointText isStart={this.props.value.animation.isStartPointEffect}
                                           point={this.props.value.point.latestValue}
                                           endPointEffectCallback={() => this.props.actions.endPointEffect()}/>;
-        const move = this.props.value.moves[this.props.value.moves.length - 1];
+        const move = this.props.value.point.latestMove;
+        console.log(move);
         if(!!move) {
             return Board.pointSquare(move.toX, move.toY, move.piece.isSente, pointComponent);
         } else {

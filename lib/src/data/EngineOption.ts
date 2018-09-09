@@ -5,6 +5,7 @@ export default class EngineOption{
     private _ownBook: boolean = true;
     private _bookFile: string = "book.bin";
     private _resignScore: number = -32600;
+    private _threads: number = 8;
 
 
     set ownBook(value: boolean) {
@@ -20,11 +21,17 @@ export default class EngineOption{
         this._resignScore = value;
     }
 
+
+    set threads(value: number) {
+        this._threads = value;
+    }
+
     public static fromJSON(obj: Json): EngineOption {
         const option = new EngineOption();
         option.ownBook = obj._ownBook;
         option.bookFile = obj._bookFile;
         option.resignScore = obj._resignScore;
+        option.threads = obj._threads;
         return option;
     }
 

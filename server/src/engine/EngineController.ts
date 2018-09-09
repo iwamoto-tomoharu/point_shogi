@@ -1,17 +1,17 @@
 import Engine from "./Engine";
-import PiecePosition from "../../../lib/data/PiecePosition";
-import EngineCommandType from "../../../lib/data/enum/EngineCommandType";
-import EngineResponseData from "../../../lib/data/EngineResponseData";
-import Move from "../../../lib/data/Move";
+import EngineCommandType from "../../../lib/src/data/enum/EngineCommandType";
+import EngineResponseData from "../../../lib/src/data/EngineResponseData";
+import Move from "../../../lib/src/data/Move";
 import EngineData from "../data/EngineData";
-import EngineCommand from "../../../lib/data/EngineCommand";
-import EngineOption from "../../../lib/data/EngineOption";
+import EngineCommand from "../../../lib/src/data/EngineCommand";
+import EngineOption from "../../../lib/src/data/EngineOption";
+import PiecePosition from "../../../lib/src/data/PiecePosition";
 
 export default class EngineController {
     //TODO:パラメータ化
     private static readonly ENGINE_MAX_SIZE: number = 5;
     private static _instance: EngineController;
-    private engines: Engine[] = [];
+    private engines: Set<Engine> = new Set<Engine>();
 
     private constructor() {}
 
@@ -40,17 +40,22 @@ export default class EngineController {
 
     /**
      * 使用可能なエンジンを取得
+     * synchronizedできるならしたい
+     * タイミングによっては異なるスレッドが同じエンジンを使ってしまう可能性がある
      * @returns {Engine}
      */
     private async getEnableEngine(): Promise<Engine> {
         for(let engine of this.engines) {
-            if(engine.isEnable) return engine;
+            if(!engine.isUsing) {
+                engine.isUsing = true;
+                return engine;
+            }
         }
-        if(this.engines.length < EngineController.ENGINE_MAX_SIZE){
+        if(this.engines.size < EngineController.ENGINE_MAX_SIZE){
             const engine: Engine = new Engine();
+            this.engines.add(engine);
             await engine.initialize();
-            this.engines.push(engine);
-            return this.engines[this.engines.length - 1];
+            return engine;
         }
         return null;
     }

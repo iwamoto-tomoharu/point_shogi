@@ -1,12 +1,12 @@
-import Move from "./data/Move";
-import PiecePosition from "./data/PiecePosition";
-import HavePiece from "./data/CapturedPiece";
-import Piece from "./data/Piece";
-import PieceType from "./data/enum/PieceType";
+import Move from "../src/data/Move";
+import PiecePosition from "../src/data/PiecePosition";
+import HavePiece from "../src/data/CapturedPiece";
+import Piece from "../src/data/Piece";
+import PieceType from "../src/data/enum/PieceType";
 import ShogiUtility from "./utility/ShogiUtility";
-import Direction from "./data/Direction";
-import Vector from "./data/Vector";
-import InvalidMoveError from "./error/InvalidMoveError";
+import Direction from "../src/data/Direction";
+import Vector from "../src/data/Vector";
+import InvalidMoveError from "../src/error/InvalidMoveError";
 
 export default class ShogiRule {
     /**
