@@ -35,7 +35,8 @@ export default class EngineController {
          const commandStr: string = `${EngineCommandType[command.type]} ${command.value}`;
          const data: EngineData = await engine.exec(position.toSfen(), commandStr, option.toEngineValue());
          const bestMove: Move = data.bestMove ? position.sfenToMove(data.bestMove) : null;
-         return new EngineResponseData(data.status, data.evaluation, bestMove, data.isResign, data.isNyugyoku);
+         const evaluation = position.isTurnSente ? data.evaluation : -data.evaluation;
+         return new EngineResponseData(data.status, evaluation, bestMove, data.isResign, data.isNyugyoku);
     }
 
     /**

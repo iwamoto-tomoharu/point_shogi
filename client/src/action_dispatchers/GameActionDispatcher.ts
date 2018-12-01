@@ -22,6 +22,7 @@ import ShogiRule from "../../../lib/src/ShogiRule";
 import ShogiUtility from "../../../lib/src/utility/ShogiUtility";
 import Piece from "../../../lib/src/data/Piece";
 import ApiName from "../../../lib/src/data/enum/ApiName";
+import PointCalculator from "../model/PointCalculator";
 
 // こちらの記事を参考
 // https://qiita.com/uryyyyyyy/items/d8bae6a7fca1c4732696
@@ -56,14 +57,19 @@ export default class GameActionDispatcher {
             return;
         }
 
+        const beforePosition = this.state.position.copy();
+
         //駒移動
+        //this.state.positionは書き換わる
         this.dispatch(pieceMove(move));
 
         //ポイント計算
         (async () => {
             const ply = this.state.moves.length + 1;
-            const point = await this.state.point.calculator.execAnalysisAndCalcPoint(this.state.position, ply);
-            this.dispatch(pointEffectStart(true, this.state.point.calculator, move, point));
+            const beforeResult = await this.execAnalysisForPoint(beforePosition);
+            const nowResult = await this.execAnalysisForPoint(this.state.position);
+            const point = PointCalculator.calcPoint(beforeResult, nowResult, this.state.isMeSente, this.state.difficulty);
+            this.dispatch(pointEffectStart(true, move, point));
         })();
 
         //相手の着手
@@ -74,7 +80,7 @@ export default class GameActionDispatcher {
      * 点数エフェクトの終了
      */
     public endPointEffect(): void {
-        this.dispatch(pointEffectStart(false, this.state.point.calculator));
+        this.dispatch(pointEffectStart(false));
     }
 
     /**
@@ -142,6 +148,16 @@ export default class GameActionDispatcher {
             const data: AnalysisResponseData = await client.analyze(requestData);
             this.dispatch(pieceMove(data.bestMove));
         })();
+    }
+
+    private async execAnalysisForPoint(position: PiecePosition): Promise<AnalysisResponseData> {
+        const command: EngineCommand = new EngineCommand(EngineCommandType.nodes, 100000);
+        const option: EngineOption = new EngineOption();
+        option.ownBook = false;
+        option.threads = 1;
+        const requestData: AnalysisRequestData = new AnalysisRequestData(ApiName.analysisPoint, position, command, option);
+        const analysisTransceiver: AnalysisClient = new AnalysisClient();
+        return await analysisTransceiver.analyze(requestData);
     }
 
     /**

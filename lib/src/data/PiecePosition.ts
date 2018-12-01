@@ -192,6 +192,26 @@ export default class PiecePosition {
     }
 
     /**
+     * このオブジェクトをコピー
+     * @returns {PiecePosition}
+     */
+    public copy(): PiecePosition {
+        const cpyPieces: Piece[][] = this.initPosition();
+        for(let x = 0; x < this._position.length; x++){
+            for(let y = 0; y < this._position[x].length; y++){
+                const piece: Piece = this._position[x][y];
+                cpyPieces[x][y] = piece != null ? new Piece(piece.type, piece.isSente) : null;
+            }
+        }
+        const cpyHavePieces: CapturedPiece[] = [];
+        for(let capturedPiece of this._capturedPieces) {
+            const cpyHavePiece: CapturedPiece = new CapturedPiece(capturedPiece.type, capturedPiece.isSente, capturedPiece.num);
+            cpyHavePieces.push(cpyHavePiece);
+        }
+        return new PiecePosition(cpyPieces, cpyHavePieces, this._isTurnSente);
+    }
+
+    /**
      * 駒の移動
      * @param {Move} move
      */
@@ -265,26 +285,6 @@ export default class PiecePosition {
             capturedPieces.push(new CapturedPiece(capturedPieceObj._type, capturedPieceObj._isSente, capturedPieceObj._num));
         }
         return capturedPieces;
-    }
-
-    /**
-     * このオブジェクトをコピー
-     * @returns {PiecePosition}
-     */
-    private copy(): PiecePosition {
-        const cpyPieces: Piece[][] = this.initPosition();
-        for(let x = 0; x < this._position.length; x++){
-            for(let y = 0; y < this._position[x].length; y++){
-                const piece: Piece = this._position[x][y];
-                cpyPieces[x][y] = piece != null ? new Piece(piece.type, piece.isSente) : null;
-            }
-        }
-        const cpyHavePieces: CapturedPiece[] = [];
-        for(let capturedPiece of this._capturedPieces) {
-            const cpyHavePiece: CapturedPiece = new CapturedPiece(capturedPiece.type, capturedPiece.isSente, capturedPiece.num);
-            cpyHavePieces.push(cpyHavePiece);
-        }
-        return new PiecePosition(cpyPieces, cpyHavePieces, this._isTurnSente);
     }
 
     /**

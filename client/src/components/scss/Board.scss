@@ -51,38 +51,3 @@
   margin-left: 10%;
 }
 
-.choiceNariArea {
-  position: absolute;
-  width: 28%;
-  height: 14%;
-}
-
-.imgChoiceNari {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.choiceSquareArea {
-  position: relative;
-  float: left;
-  width: 50%;
-  height: 100%;
-}
-
-.imgChoicePiece {
-  margin-top: 13%;
-  width: 75%;
-}
-
-.imgChoicePieceNari {
-  @extend .imgChoicePiece;
-  margin-left: 5%;
-}
-
-.imgChoicePieceNarazu {
-  @extend .imgChoicePiece;
-  margin-left: -8%;
-}

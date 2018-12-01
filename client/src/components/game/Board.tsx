@@ -7,6 +7,7 @@ import PieceComponent from "./PieceComponent";
 import {PlayingStatus} from "../../modules/GameModule";
 import Piece from "../../../../lib/src/data/Piece";
 import PointText from "./PointText";
+import {MyDialog} from "../util/MyDialog";
 
 /**
  * 盤面
@@ -19,8 +20,8 @@ export default class Board extends React.Component<Props, {}> {
                 <div className={styles.pieceArea}>
                     {this.boardPieces()}
                     {this.pointText()}
-                    {this.props.value.playingStatus === PlayingStatus.ChoiceNari ? this.choiceNariPiece(this.props.value.isMeSente) : null}
                 </div>
+                {this.props.value.playingStatus === PlayingStatus.ChoiceNari ? this.choiceNariPiece() : null}
             </div>
         );
     }
@@ -46,7 +47,6 @@ export default class Board extends React.Component<Props, {}> {
                                           point={this.props.value.point.latestValue}
                                           endPointEffectCallback={() => this.props.actions.endPointEffect()}/>;
         const move = this.props.value.point.latestMove;
-        console.log(move);
         if(!!move) {
             return Board.pointSquare(move.toX, move.toY, move.piece.isSente, pointComponent);
         } else {
@@ -101,35 +101,16 @@ export default class Board extends React.Component<Props, {}> {
     }
 
     /**
-     * 成り選択DOM生成
-     * @param {boolean} isMeSente
+     * 成り選択ダイアログ
      * @returns {React.ReactElement<Props>}
      */
-    private choiceNariPiece(isMeSente: boolean): React.ReactElement<Props> {
-        const move = this.props.value.nariChoiceMove.nari;
-        const boardX = isMeSente ? move.toX : 10 - move.toX;
-        const boardY = isMeSente ? move.toY : 10 - move.toY;
-        const left = 10 * (9 - boardX) - 4;
-        const top = 80 - 10 * (9 - boardY);
-        const parentStyle = {
-            left: `${left}%`,
-            top: `${top}%`,
-        };
-         return (
-            <div className={styles.choiceNariArea} style={parentStyle}>
-                <img src="image/game/piece_select.png" className={styles.imgChoiceNari}/>
-                <div className={styles.choiceSquareArea}
-                     onClick={() => this.props.actions.moveMyPiece(this.props.value.nariChoiceMove.nari, true)}>
-                <PieceComponent piece={this.props.value.nariChoiceMove.nari.piece} isFront={true}
-                                className={styles.imgChoicePieceNari}/>
-                </div>
-                <div className={styles.choiceSquareArea}
-                     onClick={() => this.props.actions.moveMyPiece(this.props.value.nariChoiceMove.narazu, true)}>
-                <PieceComponent piece={this.props.value.nariChoiceMove.narazu.piece} isFront={true}
-                                className={styles.imgChoicePieceNarazu}/>
-                </div>
-            </div>
-         );
+    private choiceNariPiece(): React.ReactElement<Props> {
+        return <MyDialog isOpen={true}
+                         title={"成りますか？"}
+                         handleYes={() => this.props.actions.moveMyPiece(this.props.value.nariChoiceMove.nari, true)}
+                         handleNo={() => this.props.actions.moveMyPiece(this.props.value.nariChoiceMove.narazu, true)}
+                         handleClose={() => this.props.actions.cancelSelectMyPiece()}/>;
+
     }
 
     /**

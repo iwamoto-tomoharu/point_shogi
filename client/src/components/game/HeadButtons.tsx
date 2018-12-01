@@ -21,9 +21,9 @@ export class HeadButtons extends React.Component<Props, {}> {
                 </Button>
                 <MyDialog isOpen={this.props.value.isOpenResignDialog}
                           title={"投了しますか？"}
-                          handleOk={() => this.props.actions.resign()}
+                          handleYes={() => this.props.actions.resign()}
                           handleClose={() => this.props.actions.closeResignDialog()}
-                          handleCancel={() => this.props.actions.closeResignDialog()}/>
+                          handleNo={() => this.props.actions.closeResignDialog()}/>
             </div>
         );
     }

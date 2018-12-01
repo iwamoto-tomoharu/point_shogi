@@ -2,7 +2,6 @@ import {Action} from "redux";
 import Move from "../../../lib/src/data/Move";
 import PiecePosition from "../../../lib/src/data/PiecePosition";
 import BoardPiece from "../../../lib/src/data/BoardPiece";
-import PointCalculator from "../model/PointCalculator";
 
 enum ActionNames {
     Start       = "game/start",
@@ -47,7 +46,6 @@ interface StartPointEffectAction extends Action {
     type: ActionNames.StartPointEffect;
     payload: {
         isStart: boolean,
-        pointCalculator: PointCalculator,
         move: Move,
         point: number,
     };
@@ -88,9 +86,9 @@ export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => 
     payload: {nariChoiceMove},
 });
 
-export const pointEffectStart = (isStart: boolean,  pointCalculator: PointCalculator, move?: Move, point?: number): StartPointEffectAction => ({
+export const pointEffectStart = (isStart: boolean, move?: Move, point?: number): StartPointEffectAction => ({
     type: ActionNames.StartPointEffect,
-    payload: {isStart, pointCalculator, move, point}
+    payload: {isStart, move, point}
 });
 
 export const resignDialogOpen = (isOpen: boolean): OpenResignDialogAction => ({
@@ -137,8 +135,9 @@ export interface GameState {
     point: {
         latestMove: Move,
         latestValue: number,
-        calculator: PointCalculator,
     };
+    //難易度
+    difficulty: number;
     //アニメーションの状態
     animation: {isStartPointEffect: boolean};
     //投了ダイアログ
@@ -162,8 +161,8 @@ const initialState: GameState = {
     point: {
         latestMove: null,
         latestValue: null,
-        calculator: new PointCalculator(),
     },
+    difficulty: 1, //TODO: 難易度を画面から設定する
     animation: {isStartPointEffect: false},
     isOpenResignDialog: false,
 };
@@ -218,7 +217,6 @@ export default function reducer(state: GameState = initialState, action: Action 
                 point: {
                     latestMove: gameAction.payload.move,
                     latestValue: gameAction.payload.point,
-                    calculator: gameAction.payload.pointCalculator,
                 },
                 animation: {
                     ...state.animation,

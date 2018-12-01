@@ -8,7 +8,7 @@ import EngineResponseData from "../../../../lib/src/data/EngineResponseData";
 class AnalysisRouter {
     public static create(): Express.Router {
         const router = Express.Router();
-        router.post("/", (req, res) => this.root(req, res));
+        router.post("/", this.root.bind(this));
         return router;
     }
 

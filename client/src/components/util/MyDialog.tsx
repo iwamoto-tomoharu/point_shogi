@@ -11,8 +11,8 @@ interface DialogProps {
     message?: string;
     okButtonMessage?: string;
     cancelButtonMessage?: string;
-    handleOk?: () => void;
-    handleCancel?: () => void;
+    handleYes?: () => void;
+    handleNo?: () => void;
     handleClose?: () => void;
 }
 
@@ -37,10 +37,10 @@ export class MyDialog extends React.Component<DialogProps, {}> {
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.props.handleOk} color="primary" autoFocus>
+                        <Button onClick={this.props.handleYes} color="primary" autoFocus>
                             {this.props.okButtonMessage || "はい"}
                         </Button>
-                        <Button onClick={this.props.handleCancel} color="primary">
+                        <Button onClick={this.props.handleNo} color="primary">
                             {this.props.cancelButtonMessage || "いいえ"}
                         </Button>
                     </DialogActions>
