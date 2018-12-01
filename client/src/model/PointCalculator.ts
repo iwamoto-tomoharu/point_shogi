@@ -3,6 +3,8 @@ import MyMath from "../../../lib/src/MyMath";
 import DifficultyParam from "../data/DifficultyParam";
 
 export default class PointCalculator {
+    //評価値を勝率に変換する時のスケーリング
+    //elmoを参考にした値
     private static readonly EVAL_SCALING: number = 1 / 600;
 
     //難易度ごとのパラメータ定義
@@ -72,6 +74,7 @@ export default class PointCalculator {
      * @returns {number}
      */
     private static calcBadValue(beforeEval: number, nowEval: number, isSente: boolean): number {
+        //評価値をシグモイド関数で勝率に変換する
         const beforeWinRate = MyMath.sigmoid(beforeEval, this.EVAL_SCALING); //0〜1
         const nowWinRate = MyMath.sigmoid(nowEval, this.EVAL_SCALING); //0〜1
         const rateDiff = isSente ? (beforeWinRate - nowWinRate) : (nowWinRate - beforeWinRate); //-1〜1
