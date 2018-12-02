@@ -6,4 +6,6 @@ export default interface DifficultyParam {
     xAxisVertexX: number; //X軸交点のXの値 (悪手値がこの値以上だと点数がマイナスになる)(この値が0に近づくほど難易度が高くなる)
     pointPlusFuncSlope: number; //y>=0の一次関数の傾き(この値が0に近づくほど難易度が高くなる)
     pointMinusFuncSlope: number;//y<0の一次関数の傾き(この値が0に近づくほど難易度が低くなる)
+    maxPoint: number; //ポイントの最大値
+    minPoint: number; //ポイントの最小値
 }

@@ -9,6 +9,7 @@ enum ActionNames {
     SelectPiece = "game/select_piece",
     NariChoice = "game/nari_choice",
     CancelPiece = "game/cancel_piece",
+    UpdatePoint = "game/update_point",
     StartPointEffect = "game/start_point_effect",
     OpenResignDialog = "game/open_resign_dialog",
     Resign           = "game/resign",
@@ -42,12 +43,18 @@ interface NariChoiceAction extends Action {
     };
 }
 
+interface UpdatePointAction extends Action {
+    type: ActionNames.UpdatePoint;
+    payload: {
+        move: Move,
+        point: number,
+    };
+}
+
 interface StartPointEffectAction extends Action {
     type: ActionNames.StartPointEffect;
     payload: {
         isStart: boolean,
-        move: Move,
-        point: number,
     };
 }
 
@@ -86,12 +93,17 @@ export const nariChoice = (nariChoiceMove: NariChoiceMove): NariChoiceAction => 
     payload: {nariChoiceMove},
 });
 
-export const pointEffectStart = (isStart: boolean, move?: Move, point?: number): StartPointEffectAction => ({
-    type: ActionNames.StartPointEffect,
-    payload: {isStart, move, point}
+export const updatePoint = (move: Move, point: number): UpdatePointAction => ({
+    type: ActionNames.UpdatePoint,
+    payload: {move, point}
 });
 
-export const resignDialogOpen = (isOpen: boolean): OpenResignDialogAction => ({
+export const startPointEffect = (isStart: boolean): StartPointEffectAction => ({
+    type: ActionNames.StartPointEffect,
+    payload: {isStart}
+});
+
+export const openResignDialog = (isOpen: boolean): OpenResignDialogAction => ({
     type: ActionNames.OpenResignDialog,
     payload: {isOpen}
 });
@@ -135,6 +147,10 @@ export interface GameState {
     point: {
         latestMove: Move,
         latestValue: number,
+        totalValue: number,
+        maxValue: number,
+        minValue: number,
+        midValue: number,
     };
     //難易度
     difficulty: number;
@@ -146,7 +162,8 @@ export interface GameState {
 
 export type GameActions =
     StartAction | MoveAction | SelectPieceAction | NariChoiceAction |
-    CancelMoveAction | StartPointEffectAction | OpenResignDialogAction | ResignAction;
+    CancelMoveAction | UpdatePointAction | StartPointEffectAction |
+    OpenResignDialogAction | ResignAction;
 
 //stateの初期値
 const initialState: GameState = {
@@ -161,8 +178,12 @@ const initialState: GameState = {
     point: {
         latestMove: null,
         latestValue: null,
+        totalValue: 0,
+        maxValue: 1000,
+        minValue: -1000,
+        midValue: 0,
     },
-    difficulty: 1, //TODO: 難易度を画面から設定する
+    difficulty: 3, //TODO: 難易度を画面から設定する
     animation: {isStartPointEffect: false},
     isOpenResignDialog: false,
 };
@@ -211,13 +232,22 @@ export default function reducer(state: GameState = initialState, action: Action 
                 ...selectOff,
                 playingStatus: PlayingStatus.Thinking,
             };
-        case ActionNames.StartPointEffect:
+        case ActionNames.UpdatePoint:
+            let totalValue = state.point.totalValue + gameAction.payload.point;
+            if(totalValue > state.point.maxValue) totalValue = state.point.maxValue;
+            if(totalValue < state.point.minValue) totalValue = state.point.minValue;
             return {
                 ...state,
                 point: {
+                    ...state.point,
                     latestMove: gameAction.payload.move,
                     latestValue: gameAction.payload.point,
+                    totalValue,
                 },
+            };
+        case ActionNames.StartPointEffect:
+            return {
+                ...state,
                 animation: {
                     ...state.animation,
                     isStartPointEffect: gameAction.payload.isStart

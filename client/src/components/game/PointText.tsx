@@ -32,7 +32,7 @@ export default class PointText extends React.Component<PointTextProps, {}> {
                            classNames={{enter: enterClassName, enterActive: enterActiveClassName}}
                            onEntered={this.props.endPointEffectCallback}
             >
-                <div className={textClassName}>{point}</div>
+                <div className={textClassName}>{this.props.isStart ? point : ""}</div>
             </CSSTransition>
         );
     }

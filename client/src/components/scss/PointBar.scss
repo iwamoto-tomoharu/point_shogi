@@ -1,0 +1,35 @@
+.pointBar {
+  z-index: 10;
+  width: 90%;
+  height: 4%;
+  top: 8%;
+  left: 5%;
+  float: left;
+  position: absolute;
+}
+
+.linearBar {
+  height: 90% !important;
+}
+
+.scale {
+  font-size: 0.8rem;
+}
+
+.scaleMin {
+  @extend .scale;
+  float: left;
+  color: red;
+}
+
+.scaleMid {
+  @extend .scale;
+  float: left;
+  padding-left: 40%;
+}
+
+.scaleMax {
+  @extend .scale;
+  float: right;
+  color: blue;
+}

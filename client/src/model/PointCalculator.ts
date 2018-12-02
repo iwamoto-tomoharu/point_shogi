@@ -11,8 +11,10 @@ export default class PointCalculator {
     // xAxisVertexX * pointPlusFuncSlope = -100 にすると最高点が100点になる
     // (1-xAxisVertexX) * pointMinusFuncSlope = -100 にすると最低点が-100点になる
     private static readonly difficultyParams: DifficultyParam[] = [
-        {xAxisVertexX: 0.2, pointPlusFuncSlope: -500, pointMinusFuncSlope: -500},
-        {xAxisVertexX: 0.1, pointPlusFuncSlope: -1000, pointMinusFuncSlope: -600},
+        {xAxisVertexX: 0.2, pointPlusFuncSlope: -500, pointMinusFuncSlope: -500, maxPoint: 100, minPoint: -100},
+        {xAxisVertexX: 0.1, pointPlusFuncSlope: -1000, pointMinusFuncSlope: -750, maxPoint: 100, minPoint: -100},
+        {xAxisVertexX: 0.05, pointPlusFuncSlope: -2000, pointMinusFuncSlope: -1000, maxPoint: 100, minPoint: -100},
+        {xAxisVertexX: 0.05, pointPlusFuncSlope: -1000, pointMinusFuncSlope: -5000, maxPoint: 50, minPoint: -100},
     ];
 
     /**
@@ -26,10 +28,11 @@ export default class PointCalculator {
      */
     public static calcPoint(beforeResult: AnalysisResponseData, nowResult: AnalysisResponseData, isSente: boolean, difficulty: number): number {
         if(!(beforeResult && nowResult)) return null;
+        const diffParam = this.difficultyParams[difficulty];
         //最善手を指した場合は最高点
-        if(beforeResult.bestMove.equal(nowResult.bestMove)) return this.getModifyPoint(100, beforeResult.evaluation);
+        if(beforeResult.bestMove.equal(nowResult.bestMove)) return this.getModifyPoint(diffParam.maxPoint, beforeResult.evaluation, diffParam.maxPoint, diffParam.minPoint);
 
-        return PointCalculator.calcPointFromEval(beforeResult.evaluation, nowResult.evaluation, isSente, difficulty);
+        return PointCalculator.calcPointFromEval(beforeResult.evaluation, nowResult.evaluation, isSente, diffParam);
     }
 
     /**
@@ -37,17 +40,16 @@ export default class PointCalculator {
      * @param {number} beforeEval
      * @param {number} nowEval
      * @param {boolean} isSente
-     * @param {number} difficulty
+     * @param {DifficultyParam} diffParam
      * @returns {number}
      */
-    private static calcPointFromEval(beforeEval: number, nowEval: number, isSente: boolean, difficulty: number): number {
+    private static calcPointFromEval(beforeEval: number, nowEval: number, isSente: boolean, diffParam: DifficultyParam): number {
         const badValue = this.calcBadValue(beforeEval, nowEval, isSente);
-        const diffParam = this.difficultyParams[difficulty];
         const pointLinearFunc = badValue <= diffParam.xAxisVertexX ?
             MyMath.createLinearFunc(diffParam.xAxisVertexX, 0, diffParam.pointPlusFuncSlope) :
             MyMath.createLinearFunc(diffParam.xAxisVertexX, 0, diffParam.pointMinusFuncSlope);
         const linearFuncPoint = pointLinearFunc(badValue);
-        return this.getModifyPoint(linearFuncPoint, beforeEval);
+        return this.getModifyPoint(linearFuncPoint, beforeEval, diffParam.maxPoint, diffParam.minPoint);
     }
 
 
@@ -55,11 +57,13 @@ export default class PointCalculator {
      * 点数を補正
      * @param {number} point
      * @param {number} beforeEval
+     * @param {number} maxPoint
+     * @param {number} minPoint
      * @returns {number}
      */
-    private static getModifyPoint(point: number, beforeEval: number): number {
-        let modifyPoint = point > 100 ? 100 : point;
-        modifyPoint = point < -100 ? -100 : modifyPoint;
+    private static getModifyPoint(point: number, beforeEval: number, maxPoint: number, minPoint: number): number {
+        let modifyPoint = point > maxPoint ? maxPoint : point;
+        modifyPoint = point < minPoint ? minPoint : modifyPoint;
         //接戦の指標をかけることで、形勢接近の局面は高く、形勢の離れた局面は低くなる
         //接戦時に好手を指す方が価値が高い
         modifyPoint *= this.closeGameIndicator(beforeEval);

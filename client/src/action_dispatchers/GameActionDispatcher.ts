@@ -5,8 +5,8 @@ import {
     GameState,
     nariChoice,
     NariChoiceMove,
-    pieceMove, pointEffectStart, resign, resignDialogOpen,
-    selectPiece
+    pieceMove, startPointEffect, resign, openResignDialog,
+    selectPiece, updatePoint
 } from "../modules/GameModule";
 import Move from "../../../lib/src/data/Move";
 import EngineCommand from "../../../lib/src/data/EngineCommand";
@@ -69,7 +69,8 @@ export default class GameActionDispatcher {
             const beforeResult = await this.execAnalysisForPoint(beforePosition);
             const nowResult = await this.execAnalysisForPoint(this.state.position);
             const point = PointCalculator.calcPoint(beforeResult, nowResult, this.state.isMeSente, this.state.difficulty);
-            this.dispatch(pointEffectStart(true, move, point));
+            this.dispatch(updatePoint(move, point));
+            this.dispatch(startPointEffect(true));
         })();
 
         //相手の着手
@@ -80,7 +81,7 @@ export default class GameActionDispatcher {
      * 点数エフェクトの終了
      */
     public endPointEffect(): void {
-        this.dispatch(pointEffectStart(false));
+        this.dispatch(startPointEffect(false));
     }
 
     /**
@@ -115,14 +116,14 @@ export default class GameActionDispatcher {
      * 投了ダイアログを開く
      */
     public openResignDialog(): void {
-        this.dispatch(resignDialogOpen(true));
+        this.dispatch(openResignDialog(true));
     }
 
     /**
      * 投了ダイアログを閉じる
      */
     public closeResignDialog(): void {
-        this.dispatch(resignDialogOpen(false));
+        this.dispatch(openResignDialog(false));
     }
 
     /**

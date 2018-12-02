@@ -9,19 +9,19 @@
 .handBackPos {
   @extend .handArea;
   left: 0;
-  top: 9%;
+  top: 14%;
   padding: 0 3%;
 }
 
 .handFrontPos {
   @extend .handArea;
   left: 0;
-  top: 87%;
+  top: 92%;
   padding: 0 3%;
 }
 
 .capturedPiece {
-  width: 11%;
+  width: 9%;
   height: 100%;
   position: relative;
 }
