@@ -1,9 +1,9 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import store from "./Store";
-import {Provider} from "react-redux";
-import Game from "./containers/Game";
-import Main from "./components/Main";
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import { store } from './Store'
+import { Provider } from 'react-redux'
+import Game from './containers/Game'
+import Main from './components/Main'
 
 ReactDOM.render(
     <Main>
@@ -11,5 +11,5 @@ ReactDOM.render(
             <Game />
         </Provider>
     </Main>
-  , document.getElementById("app")
-);
+  , document.getElementById('app')
+)

@@ -1,12 +1,12 @@
 export default class Vector {
-    constructor(private _x:number, private _y: number) {
-    }
+  constructor (private _x: number, private _y: number) {
+  }
 
-    get x(): number {
-        return this._x;
-    }
+  get x (): number {
+    return this._x
+  }
 
-    get y(): number {
-        return this._y;
-    }
+  get y (): number {
+    return this._y
+  }
 }

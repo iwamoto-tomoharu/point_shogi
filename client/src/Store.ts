@@ -1,18 +1,18 @@
-import game, {GameActions, GameState} from "./modules/GameModule";
-import {createStore, combineReducers, applyMiddleware, Action} from "redux";
-import logger from "redux-logger";
+import game, { GameActions, GameState } from './modules/GameModule'
+import { createStore, combineReducers, applyMiddleware, Action } from 'redux'
+import logger from 'redux-logger'
 
-export default createStore(
+export const store = createStore(
     combineReducers({
-        game,
-  }),
+      game
+    }),
     applyMiddleware(logger)
-);
+)
 
 export type ReduxState = {
-    game: GameState,
-};
+  game: GameState
+}
 
 export type ReduxAction =
     GameActions |
-    Action;
+    Action

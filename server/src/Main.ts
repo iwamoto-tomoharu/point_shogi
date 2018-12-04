@@ -1,3 +1,3 @@
-import ExpressServer from "./web/ExpressServer";
+import ExpressServer from './web/ExpressServer'
 
-ExpressServer.start();
+ExpressServer.start()
