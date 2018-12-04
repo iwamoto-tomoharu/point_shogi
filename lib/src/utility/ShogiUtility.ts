@@ -48,11 +48,11 @@ export default class ShogiUtility {
     [PieceType.ryu]:        'RY'
   }
 
-    /**
-     * 成駒を不成の駒に変換
-     * @param nariPieceType
-     * @returns {any}
-     */
+  /**
+   * 成駒を不成の駒に変換
+   * @param nariPieceType
+   * @returns {any}
+   */
   public static getNariToNormalPiece (nariPieceType: PieceType): PieceType {
     const map: {[key: number]: number} = this.nariMap
     for (let pieceType in map) {
@@ -63,11 +63,11 @@ export default class ShogiUtility {
     return nariPieceType
   }
 
-    /**
-     *  CSAからPieceType取得
-     * @param {string} csaPiece
-     * @returns {PieceType}
-     */
+  /**
+   *  CSAからPieceType取得
+   * @param {string} csaPiece
+   * @returns {PieceType}
+   */
   public static getPieceTypeFromCsa (csaPiece: string): PieceType {
     const map: {[key: number]: string} = this.pieceCsaMap
     for (let pieceType in map) {
@@ -78,10 +78,10 @@ export default class ShogiUtility {
     return null
   }
 
-    /**
-     * CSAをMoveに変換
-     * @param moveCsa ex.-3334FU, 0055KA
-     */
+  /**
+   * CSAをMoveに変換
+   * @param moveCsa ex.-3334FU, 0055KA
+   */
   public static csaToMove (moveCsa: string): Move {
     const sengoStr: string = moveCsa[0]
     const fromStr: string = moveCsa.substr(1, 2)
@@ -97,12 +97,12 @@ export default class ShogiUtility {
     return new Move(fromX, fromY, toX, toY, piece)
   }
 
-    /**
-     * 持ち駒を駒の種類順にソート
-     * @param {CapturedPiece} capturedPieces
-     * @param {boolean} isAsc
-     * @returns {CapturedPiece[]}
-     */
+  /**
+   * 持ち駒を駒の種類順にソート
+   * @param {CapturedPiece} capturedPieces
+   * @param {boolean} isAsc
+   * @returns {CapturedPiece[]}
+   */
   public static sortCapturedPieces (capturedPieces: CapturedPiece[], isAsc: boolean): CapturedPiece[] {
     return capturedPieces.sort((a: CapturedPiece, b: CapturedPiece) => {
       if (a.isSente && !b.isSente) return -1
@@ -113,11 +113,11 @@ export default class ShogiUtility {
     })
   }
 
-    /**
-     * 成り駒であるか
-     * @param {PieceType} pieceType
-     * @returns {boolean}
-     */
+  /**
+   * 成り駒であるか
+   * @param {PieceType} pieceType
+   * @returns {boolean}
+   */
   public static isNari (pieceType: PieceType): boolean {
     return Object.values(this.nariMap).some((p) => p === pieceType)
   }

@@ -15,11 +15,11 @@ export default class EngineCommand {
     return this._value
   }
 
-    /**
-     * ObjectをPiecePositionに変換
-     * @param {Json} obj
-     * @returns {EngineCommand}
-     */
+  /**
+   * ObjectをPiecePositionに変換
+   * @param {Json} obj
+   * @returns {EngineCommand}
+   */
   public static fromJSON (obj: Json): EngineCommand {
     return new EngineCommand(
             obj._type,

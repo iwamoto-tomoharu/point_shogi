@@ -1,5 +1,5 @@
 enum EngineCommandType {
     nodes,
-    byoyomi,
+    byoyomi
 }
-export default EngineCommandType;
+export default EngineCommandType

@@ -21,6 +21,6 @@ module.exports = (config) => {
         logLevel: config.LOG_DEBUG,
         autoWatch: true,
         browsers: ["Chrome"],
-        //singleRun: true, //テスト実行後にブラウザを落とす
+      //singleRun: true, //テスト実行後にブラウザを落とす
     })
 };

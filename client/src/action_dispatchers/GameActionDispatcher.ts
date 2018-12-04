@@ -34,9 +34,9 @@ export default class GameActionDispatcher {
         private store: Store<{}>
     ) {}
 
-    /**
-     * 対局開始
-     */
+  /**
+   * 対局開始
+   */
   public start (): void {
     const isMeSente = GameActionDispatcher.execFurigoma()
     this.dispatch(gameStart(isMeSente))
@@ -45,13 +45,13 @@ export default class GameActionDispatcher {
     }
   }
 
-    /**
-     * 自分の駒を移動
-     * @param {Move} move
-     * @param {boolean} isNariConfimed 成り確認済みか
-     */
+  /**
+   * 自分の駒を移動
+   * @param {Move} move
+   * @param {boolean} isNariConfimed 成り確認済みか
+   */
   public moveMyPiece (move: Move, isNariConfimed: boolean): void {
-        // 成り選択が必要か
+    // 成り選択が必要か
     if (!isNariConfimed && ShogiRule.isNeedChoiceNari(this.state.position, move)) {
       this.dispatch(nariChoice(GameActionDispatcher.getNariChoiceMoves(move)))
       return
@@ -59,11 +59,11 @@ export default class GameActionDispatcher {
 
     const beforePosition = this.state.position.copy()
 
-        // 駒移動
-        // this.state.positionは書き換わる
+    // 駒移動
+    // this.state.positionは書き換わる
     this.dispatch(pieceMove(move));
 
-        // ポイント計算
+    // ポイント計算
     (async () => {
       const ply = this.state.moves.length + 1
       const beforeResult = await this.execAnalysisForPoint(beforePosition)
@@ -73,23 +73,23 @@ export default class GameActionDispatcher {
       this.dispatch(startPointEffect(true))
     })()
 
-        // 相手の着手
+    // 相手の着手
     this.moveOpponentPiece(this.state.position)
   }
 
-    /**
-     * 点数エフェクトの終了
-     */
+  /**
+   * 点数エフェクトの終了
+   */
   public endPointEffect (): void {
     this.dispatch(startPointEffect(false))
   }
 
-    /**
-     * 自分の駒を選択
-     * @param {BoardPiece} boardPiece
-     */
+  /**
+   * 自分の駒を選択
+   * @param {BoardPiece} boardPiece
+   */
   public selectMyPiece (boardPiece: BoardPiece): void {
-        // 選択した駒の合法手を抽出
+    // 選択した駒の合法手を抽出
     const legalMoves: Move[] = ShogiRule.getLegalMoveList(this.state.position)
     const selectedLegalMoves: Move[] = legalMoves.filter((move: Move) =>
             GameActionDispatcher.isBoardPieceMove(move, boardPiece)
@@ -97,47 +97,47 @@ export default class GameActionDispatcher {
     this.dispatch(selectPiece(boardPiece, selectedLegalMoves))
   }
 
-    /**
-     * 選択状態をキャンセル
-     */
+  /**
+   * 選択状態をキャンセル
+   */
   public cancelSelectMyPiece (): void {
     this.dispatch(cancelMove())
   }
 
-    /**
-     * 投了する
-     */
+  /**
+   * 投了する
+   */
   public resign (): void {
     this.closeResignDialog()
     this.dispatch(resign())
   }
 
-    /**
-     * 投了ダイアログを開く
-     */
+  /**
+   * 投了ダイアログを開く
+   */
   public openResignDialog (): void {
     this.dispatch(openResignDialog(true))
   }
 
-    /**
-     * 投了ダイアログを閉じる
-     */
+  /**
+   * 投了ダイアログを閉じる
+   */
   public closeResignDialog (): void {
     this.dispatch(openResignDialog(false))
   }
 
-    /**
-     * 現在のstate(コピー)を取得
-     * @returns {GameState}
-     */
+  /**
+   * 現在のstate(コピー)を取得
+   * @returns {GameState}
+   */
   private get state (): GameState {
     return { ...(this.store.getState() as ReduxState).game }
   }
 
-    /**
-     * 相手の駒を移動
-     * @param {PiecePosition} position
-     */
+  /**
+   * 相手の駒を移動
+   * @param {PiecePosition} position
+   */
   private moveOpponentPiece (position: PiecePosition): void {
     const command: EngineCommand = new EngineCommand(EngineCommandType.nodes, 100000)
     const option: EngineOption = new EngineOption()
@@ -161,11 +161,11 @@ export default class GameActionDispatcher {
     return analysisTransceiver.analyze(requestData)
   }
 
-    /**
-     * 成り不成のMoveを取得
-     * @param {Move} move
-     * @returns {NariChoiceMove}
-     */
+  /**
+   * 成り不成のMoveを取得
+   * @param {Move} move
+   * @returns {NariChoiceMove}
+   */
   private static getNariChoiceMoves (move: Move): NariChoiceMove {
     let nari
     let narazu
@@ -181,12 +181,12 @@ export default class GameActionDispatcher {
     return { nari, narazu }
   }
 
-    /**
-     * 指定した位置の駒のMoveであるか
-     * @param {Move} move
-     * @param {BoardPiece} boardPiece
-     * @returns {boolean}
-     */
+  /**
+   * 指定した位置の駒のMoveであるか
+   * @param {Move} move
+   * @param {BoardPiece} boardPiece
+   * @returns {boolean}
+   */
   private static isBoardPieceMove (move: Move, boardPiece: BoardPiece): boolean {
     const isCapturedPiece = boardPiece.x === 0 && boardPiece.y === 0
     if (isCapturedPiece) {
@@ -196,10 +196,10 @@ export default class GameActionDispatcher {
     }
   }
 
-    /**
-     * 振り駒実行
-     * @returns {boolean}
-     */
+  /**
+   * 振り駒実行
+   * @returns {boolean}
+   */
   private static execFurigoma (): boolean {
     return [true, false][Math.round(Math.random())]
   }

@@ -35,7 +35,7 @@ export default class EngineOption {
   public toEngineValue (): {[key: string]: any} {
     const jsonObj: Json = this
     const engineValue: {[key: string]: any} = {}
-        // パスカルケースに変換
+      // パスカルケースに変換
     for (let key in jsonObj) {
       const newKey: string = `${key[1].toUpperCase()}${key.slice(2, key.length)}`
       engineValue[newKey] = jsonObj[key]

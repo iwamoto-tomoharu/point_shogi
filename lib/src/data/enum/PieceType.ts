@@ -12,6 +12,6 @@ enum PieceType {
     narikei,
     narigin,
     uma,
-    ryu,
+    ryu
 }
-export default PieceType;
+export default PieceType

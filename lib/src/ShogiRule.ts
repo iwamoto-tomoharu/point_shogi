@@ -26,28 +26,28 @@ export default class ShogiRule {
    * @returns {Move[]}
    */
   public static getLegalMoveList (pPosition: PiecePosition): Move[] {
-        // 後手番の時は盤面を反転する
+      // 後手番の時は盤面を反転する
     const pos = pPosition.isTurnSente ? pPosition : pPosition.getReverse()
-        // 盤面
+      // 盤面
     const boardMoves: Move[] = this.getBoardLegalMoveList(pos)
-        // 持ち駒
+      // 持ち駒
     const capturedPieceMoves: Move[] = this.getHavePieceLegalMoveList(pos)
     let moves: Move[] = boardMoves.concat(capturedPieceMoves)
-        // 自玉に相手の利きがあるものは除く
+      // 自玉に相手の利きがあるものは除く
     moves = this.removeDirectionMatchMyKing(moves, pos)
-        // //飛角歩の不成は除く(合法手ではあるがほぼ不要なので)
-        // retMoves = this.removeHiKaFuNarazu(moves);
+      // //飛角歩の不成は除く(合法手ではあるがほぼ不要なので)
+      // retMoves = this.removeHiKaFuNarazu(moves);
 
-        //
+      //
     const retMoves = pPosition.isTurnSente ? moves : moves.map((move) => move.reverse())
     return retMoves
   }
 
-    /**
-     * 合法手の局面を取得
-     * @param pPosition
-     * @returns {PiecePosition[]}
-     */
+  /**
+   * 合法手の局面を取得
+   * @param pPosition
+   * @returns {PiecePosition[]}
+   */
   public static getLegalPositionList (pPosition: PiecePosition): PiecePosition[] {
     const legalMoves: Move[] = this.getLegalMoveList(pPosition)
     const legalPosList: PiecePosition[] = []
@@ -66,7 +66,7 @@ export default class ShogiRule {
   public static isNeedChoiceNari (pPosition: PiecePosition, move: Move): boolean {
     const originPiece = pPosition.getPiece(move.fromX, move.fromY)
     if (!originPiece) return false
-        // moveが成り駒の可能性があるので移動元の駒に変換する
+      // moveが成り駒の可能性があるので移動元の駒に変換する
     const checkMove = new Move(move.fromX, move.fromY, move.toX, move.toY, originPiece)
     return this.isLegalNari(checkMove)
   }
@@ -78,7 +78,7 @@ export default class ShogiRule {
    */
   private static getBoardLegalMoveList (pPosition: PiecePosition): Move[] {
     let retMoves: Move[] = []
-        // 盤面
+      // 盤面
     for (let x = 0; x < pPosition.position.length; x++) {
       for (let y = 0; y < pPosition.position[x].length; y++) {
         const moves: Move[] = this.getPieceLegalMoves(x, y, pPosition.position)
@@ -158,11 +158,11 @@ export default class ShogiRule {
   private static isLegalMovePosition (toY: number, piece: Piece): boolean {
     if (!ShogiUtility.isFuKeKy(piece.type)) return true
     if (piece.type === PieceType.fu || piece.type === PieceType.kyo) {
-            // 一段目は不可
+          // 一段目は不可
       return (toY > 1 && piece.isSente) || (toY < 9 && !piece.isSente)
     }
     if (piece.type === PieceType.kei) {
-            // 一段目二段目は不可
+          // 一段目二段目は不可
       return (toY > 2 && piece.isSente) || (toY < 8 && !piece.isSente)
     }
   }
@@ -197,13 +197,13 @@ export default class ShogiRule {
     const move: Move = new Move(0 , 0, toX, toY, new Piece(capturedPiece.type, capturedPiece.isSente))
     try {
       const nextPosition: PiecePosition = pPosition.getNextPosition(move).getReverse()
-            // 次の局面で合法手が存在しない場合は詰みなので打ち歩と判断する
+          // 次の局面で合法手が存在しない場合は詰みなので打ち歩と判断する
       let legalMoves: Move[] = this.getBoardLegalMoveList(nextPosition)
       legalMoves = this.removeDirectionMatchMyKing(legalMoves, nextPosition)
       const isUtiFu: boolean = legalMoves.length === 0
       return isUtiFu
     } catch (err) {
-            // getNextPositionで不正なmoveになる可能性があるのでキャッチする
+          // getNextPositionで不正なmoveになる可能性があるのでキャッチする
       if (err instanceof InvalidMoveError) {
         return false
       }
@@ -267,21 +267,21 @@ export default class ShogiRule {
     for (let key of dirKeys) {
       const directions: {x: number, y: number}[] = Direction.dirValue[key]
       for (let dir of directions) {
-                // 駒の利きを取得
+              // 駒の利きを取得
         const toX: number = x + dir.x
         const toY: number = y + dir.y
-                // 範囲外は無視
+              // 範囲外は無視
         if (0 > toX || toX >= 9 || 0 > toY || toY >= 9) continue
-                // 自分の駒がある場合無視
+              // 自分の駒がある場合無視
         const toPiece: Piece = position[toX][toY]
         if (toPiece != null && toPiece.isSente) continue
         const move: Move = new Move(x + 1, y + 1, toX + 1, toY + 1, piece)
-                // 移動先は合法か
+              // 移動先は合法か
         if (this.isLegalMovePosition(move.toY, move.piece)) {
-                    // 合法手として追加
+                  // 合法手として追加
           moves.push(move)
         }
-                // 成りも追加
+              // 成りも追加
         if (this.isLegalNari(move)) {
           moves.push(this.getNariMove(move))
         }
@@ -304,25 +304,25 @@ export default class ShogiRule {
     for (let key of dirKeys) {
       const directions: {x: number, y: number}[] = Direction.dirValue[key]
       for (let dir of directions) {
-                // 駒の利きを取得
+              // 駒の利きを取得
         const toX: number = x + dir.x
         const toY: number = y + dir.y
-                // 範囲外は終了
+              // 範囲外は終了
         if (0 > toX || toX >= 9 || 0 > toY || toY >= 9) break
-                // 自分の駒がある場合終了
+              // 自分の駒がある場合終了
         const toPiece: Piece = position[toX][toY]
         if (toPiece != null && toPiece.isSente) break
         const move: Move = new Move(x + 1, y + 1, toX + 1, toY + 1, piece)
-                // 移動先は合法か
+              // 移動先は合法か
         if (this.isLegalMovePosition(move.toY, move.piece)) {
-                    // 合法手として追加
+                  // 合法手として追加
           moves.push(move)
         }
-                // 成りも追加
+              // 成りも追加
         if (this.isLegalNari(move)) {
           moves.push(this.getNariMove(move))
         }
-                // 相手の駒がある場合終了
+              // 相手の駒がある場合終了
         if (toPiece != null) break
       }
     }
@@ -348,7 +348,7 @@ export default class ShogiRule {
    */
   private static removeDirectionMatchMyKing (moves: Move[], pPosition: PiecePosition): Move[] {
 
-        // 移動後の配置を取得
+      // 移動後の配置を取得
     const nextPositions: PiecePosition[] = []
     for (let move of moves) {
       nextPositions.push(pPosition.getNextPosition(move).getReverse())
@@ -356,9 +356,9 @@ export default class ShogiRule {
 
     const removedMoves: Move[] = []
     for (let i = 0; i < nextPositions.length; i++) {
-            // 移動後の配置から盤上の合法手を取得
+          // 移動後の配置から盤上の合法手を取得
       const legalNextMoves: Move[] = this.getBoardLegalMoveList(nextPositions[i])
-            // 合法手の中に玉を取る手がある場合は自玉に相手の利きがあるMoveと判断し除外する
+          // 合法手の中に玉を取る手がある場合は自玉に相手の利きがあるMoveと判断し除外する
       const kingVectors: Vector[] = nextPositions[i].getPiecesXY(new Piece(PieceType.ou, false))
       const myKingXY: Vector = kingVectors[0]
       if (!this.isDetectMoveXY(myKingXY, legalNextMoves)) {
@@ -390,7 +390,7 @@ export default class ShogiRule {
     const remainMoves: Move[] = []
     for (let move of moves) {
       if (ShogiUtility.isHiKaFu(move.piece.type)) {
-                // 不成と成りが存在する場合、不成の方を追加しない
+              // 不成と成りが存在する場合、不成の方を追加しない
         if (this.isMatchBoardFromTo(move, moves)) {
           continue
         }

@@ -3,8 +3,8 @@ import PiecePosition from './PiecePosition'
 import Json from './api/Json'
 
 export default class Move {
-    // 移動は1〜9で表す
-    // 0は持ち駒
+  // 移動は1〜9で表す
+  // 0は持ち駒
   constructor (private _fromX: number,
                 private _fromY: number,
                 private _toX: number,
@@ -40,20 +40,20 @@ export default class Move {
             move.toX === this._toX && move.toY === this._toY && move.piece.equal(this._piece)
   }
 
-    /**
-     * 反転する
-     * @returns {Move}
-     */
+  /**
+   * 反転する
+   * @returns {Move}
+   */
   public reverse (): Move {
     return new Move(Move.posReverse(this._fromX), Move.posReverse(this._fromY),
             Move.posReverse(this._toX), Move.posReverse(this._toY), this._piece.reverse())
   }
 
-    /**
-     * ObjectをPiecePositionに変換
-     * @param {Json} obj
-     * @returns {Move}
-     */
+  /**
+   * ObjectをPiecePositionに変換
+   * @param {Json} obj
+   * @returns {Move}
+   */
   public static fromJSON (obj: Json): Move {
     return new Move(
             obj._fromX,

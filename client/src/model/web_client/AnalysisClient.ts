@@ -7,11 +7,11 @@ export default class AnalysisClient {
 
   private static readonly BASE_URL: string = 'http://localhost:3000'
   private static readonly END_POINT: string = 'analysis'
-    /**
-     * 解析実行
-     * @param {AnalysisRequestData} requestData
-     * @returns {Promise<AnalysisResponseData>}
-     */
+  /**
+   * 解析実行
+   * @param {AnalysisRequestData} requestData
+   * @returns {Promise<AnalysisResponseData>}
+   */
   public analyze (requestData: AnalysisRequestData): Promise<AnalysisResponseData> {
     return new Promise<AnalysisResponseData>(
             (resolve, reject) => {

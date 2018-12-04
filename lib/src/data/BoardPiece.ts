@@ -19,11 +19,11 @@ export default class BoardPiece extends Piece {
     return this._y
   }
 
-    /**
-     * 同じBoardPieceか
-     * @param {BoardPiece} piece
-     * @returns {boolean}
-     */
+  /**
+   * 同じBoardPieceか
+   * @param {BoardPiece} piece
+   * @returns {boolean}
+   */
   public equal (piece: BoardPiece): boolean {
     if (!piece) return false
     return super.equal(piece) && this._x === piece.x && this._y === piece.y

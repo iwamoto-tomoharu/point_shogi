@@ -29,12 +29,12 @@ class Main extends React.Component<Props, Status> {
     )
   }
 
-    /**
-     * BASEと実際の画面サイズとの比率
-     * 縦横の短い方を100%にする
-     * ただし縦横サイズが画面に収まる場合のみ横のrateを使用する
-     * @returns {number}
-     */
+  /**
+   * BASEと実際の画面サイズとの比率
+   * 縦横の短い方を100%にする
+   * ただし縦横サイズが画面に収まる場合のみ横のrateを使用する
+   * @returns {number}
+   */
   private static get rate (): number {
     let heightRate: number = window.innerHeight / this.MAIN_HEIGHT_BASE
     let widthRate: number = window.innerWidth / this.SCREEN_WIDTH_BASE

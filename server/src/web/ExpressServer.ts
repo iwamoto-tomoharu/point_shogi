@@ -11,8 +11,8 @@ export default class ExpressServer {
     })
 
     app.use((req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
-            // CORSの設定。別ドメインからのアクセスを許可する。
-            // TODO: 本番は指定したドメインのみ許可する
+      // CORSの設定。別ドメインからのアクセスを許可する。
+      // TODO: 本番は指定したドメインのみ許可する
       res.header('Access-Control-Allow-Origin', '*')
       res.header('Access-Control-Allow-Headers', 'Content-Type')
       next()

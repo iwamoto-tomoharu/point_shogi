@@ -12,7 +12,7 @@ interface PointBarProps {
 export default class PointBar extends React.Component<PointBarProps, {}> {
 
   public render (): React.ReactElement<PointBarProps> {
-        // 現在のポイントを0〜100に正規化する
+      // 現在のポイントを0〜100に正規化する
     const perValue = ((this.props.nowPoint - this.props.minPoint) / (this.props.maxPoint - this.props.minPoint)) * 100
     const barColor = this.props.nowPoint >= this.props.midPoint ? 'primary' : 'secondary'
 

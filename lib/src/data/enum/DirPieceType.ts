@@ -18,6 +18,6 @@ enum DirPieceType {
     hisya_1,
     hisya_2,
     hisya_3,
-    hisya_4,
+    hisya_4
 }
-export default DirPieceType;
+export default DirPieceType

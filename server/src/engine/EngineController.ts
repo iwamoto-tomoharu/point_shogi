@@ -8,7 +8,7 @@ import EngineOption from '../../../lib/src/data/EngineOption'
 import PiecePosition from '../../../lib/src/data/PiecePosition'
 
 export default class EngineController {
-    // TODO:パラメータ化
+  // TODO:パラメータ化
   private static readonly ENGINE_MAX_SIZE: number = 5
   private static _instance: EngineController
   private engines: Set<Engine> = new Set<Engine>()
@@ -22,13 +22,13 @@ export default class EngineController {
     return this._instance
   }
 
-    /**
-     * エンジン実行
-     * @param {PiecePosition} position
-     * @param {EngineCommandType} commandType
-     * @param {number} commandValue
-     * @returns {Promise<EngineResponseData>}
-     */
+  /**
+   * エンジン実行
+   * @param {PiecePosition} position
+   * @param {EngineCommandType} commandType
+   * @param {number} commandValue
+   * @returns {Promise<EngineResponseData>}
+   */
   public async exec (position: PiecePosition, command: EngineCommand, option: EngineOption): Promise<EngineResponseData> {
     const engine: Engine = await this.getEnableEngine()
     if (!engine) return null
@@ -39,12 +39,12 @@ export default class EngineController {
     return new EngineResponseData(data.status, evaluation, bestMove, data.isResign, data.isNyugyoku)
   }
 
-    /**
-     * 使用可能なエンジンを取得
-     * synchronizedできるならしたい
-     * タイミングによっては異なるスレッドが同じエンジンを使ってしまう可能性がある
-     * @returns {Engine}
-     */
+  /**
+   * 使用可能なエンジンを取得
+   * synchronizedできるならしたい
+   * タイミングによっては異なるスレッドが同じエンジンを使ってしまう可能性がある
+   * @returns {Engine}
+   */
   private async getEnableEngine (): Promise<Engine> {
     for (let engine of this.engines) {
       if (!engine.isUsing) {

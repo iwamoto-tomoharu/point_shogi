@@ -4,7 +4,7 @@ import EngineData from '../data/EngineData'
 
 export default class Engine {
 
-    // TODO:パラメータ化
+  // TODO:パラメータ化
   private static readonly ENGINE_PATH: string = '/Users/tomoharu/Documents/Develop/Gikou/bin/gikou'
 
   private static readonly EVAL_MAX: number = 9999
@@ -38,9 +38,9 @@ export default class Engine {
     this._isUsing = value
   }
 
-    /**
-     * エンジン初期化処理
-     */
+  /**
+   * エンジン初期化処理
+   */
   public initialize (): Promise<null> {
     return new Promise(
             (resolve: () => void, reject: (err: any) => void) => {
@@ -57,10 +57,10 @@ export default class Engine {
             }
         )
   }
-    /**
-     * エンジン実行
-     * @returns {boolean}
-     */
+  /**
+   * エンジン実行
+   * @returns {boolean}
+   */
   public exec (sfen: string, command: string, options: {[key: string]: string}): Promise<EngineData> {
     return new Promise((resolve: (data: EngineData) => void, reject: (err: any) => void) => {
       try {
@@ -77,19 +77,19 @@ export default class Engine {
     })
   }
 
-    /**
-     * エンジンに送信
-     * @param {string} data
-     */
+  /**
+   * エンジンに送信
+   * @param {string} data
+   */
   private send (data: string): void {
     console.debug(`[server -> engine] ${data}`)
     this.child.stdin.write(`${data}\n`)
   }
 
-    /**
-     * 受信処理
-     * @param {string} data
-     */
+  /**
+   * 受信処理
+   * @param {string} data
+   */
   private onData (data: string): void {
     console.debug(`[engine -> server] ${data}`)
     const recStrs: string[] = data.toString().split('\n')
@@ -103,35 +103,35 @@ export default class Engine {
     }
   }
 
-    /**
-     * エラー処理
-     * @param {string} data
-     */
+  /**
+   * エラー処理
+   * @param {string} data
+   */
   private onError (data: string): void {
     console.log(`onError:${data}`)
   }
 
-    /**
-     * 終了処理
-     * @param {number} code
-     * @param {string} signal
-     */
+  /**
+   * 終了処理
+   * @param {number} code
+   * @param {string} signal
+   */
   private onClose (code: number, signal: string): void {
     console.log(`onClose:${code} ${signal}`)
   }
 
-    /**
-     * usiok受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * usiok受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataUsiOk (recAry: RegExpMatchArray): void {
     this.send('isready')
   }
 
-    /**
-     * readyok受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * readyok受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataReadyOk (recAry: RegExpMatchArray): void {
     if (this.enableListener) {
       this.enableListener()
@@ -139,55 +139,55 @@ export default class Engine {
     }
   }
 
-    /**
-     * 投了受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * 投了受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataResign (recAry: RegExpMatchArray): void {
     this.callReceiveListener({ status: true, isResign: true, evaluation: Engine.EVAL_MIN })
   }
 
-    /**
-     * 入玉勝ち受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * 入玉勝ち受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataWin (recAry: RegExpMatchArray): void {
     this.callReceiveListener({ status: true, isNyugyoku: true, evaluation: Engine.EVAL_MAX })
   }
 
-    /**
-     * 詰み受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * 詰み受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataMate (recAry: RegExpMatchArray): void {
     const mateVal: number = Number(recAry[1])
     if (!Number.isInteger(mateVal)) return
     this.evaluation = mateVal >= 0 ? Engine.EVAL_MAX : Engine.EVAL_MIN
   }
 
-    /**
-     * 評価値受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * 評価値受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataScoreCp (recAry: RegExpMatchArray): void {
     const evaluation: number = Number(recAry[1])
     if (!Number.isInteger(evaluation)) return
-        // bestmoveを受信した時に使用する
+      // bestmoveを受信した時に使用する
     this.evaluation = evaluation
   }
 
-    /**
-     * 読み筋受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * 読み筋受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataPv (recAry: RegExpMatchArray): void {
-        // 使用しない
+      // 使用しない
   }
 
-    /**
-     * 最善手受信処理
-     * @param {RegExpMatchArray} recAry
-     */
+  /**
+   * 最善手受信処理
+   * @param {RegExpMatchArray} recAry
+   */
   private onDataBestMove (recAry: RegExpMatchArray): void {
     if (!recAry[1] || this.evaluation == null) {
       this.callReceiveListener({ status: false })
@@ -198,10 +198,10 @@ export default class Engine {
     this.evaluation = null
   }
 
-    /**
-     * 受信リスナーの呼び出し
-     * @param {EngineData} data
-     */
+  /**
+   * 受信リスナーの呼び出し
+   * @param {EngineData} data
+   */
   private callReceiveListener (data: EngineData): void {
     if (this.receiveListener) {
       this.receiveListener(data)

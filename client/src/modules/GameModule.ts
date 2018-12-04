@@ -113,12 +113,12 @@ export const resign = (): ResignAction => ({
 })
 
 export enum PlayingStatus {
-    NotStarted,         // 対局開始前
-    Thinking,           // 自分の考慮中
-    SelectPiece,        // 駒選択中
-    ChoiceNari,         // 成駒選択中
+    NotStarted,       // 対局開始前
+    Thinking,         // 自分の考慮中
+    SelectPiece,      // 駒選択中
+    ChoiceNari,       // 成駒選択中
     WaitOpponentMove,   // 相手の着手待ち中
-    Ended              // 対局終了
+    Ended            // 対局終了
 }
 
 export interface NariChoiceMove {
@@ -128,21 +128,21 @@ export interface NariChoiceMove {
 
 export interface GameState {
   playingStatus: PlayingStatus
-    // 自分の先後
+  // 自分の先後
   isMeSente: boolean
-    // 自分の手番か
+  // 自分の手番か
   isMyTurn: boolean
-    // 現在の盤面
+  // 現在の盤面
   position: PiecePosition
-    // 選択中の駒
+  // 選択中の駒
   selectedPiece: BoardPiece
-    // 選択中の駒の合法手
+  // 選択中の駒の合法手
   selectedLegalMoves: Move[]
-    // 成り選択の駒移動
+  // 成り選択の駒移動
   nariChoiceMove: NariChoiceMove
-    // 棋譜
+  // 棋譜
   moves: Move[]
-    // ポイント
+  // ポイント
   point: {
     latestMove: Move,
     latestValue: number,
@@ -151,11 +151,11 @@ export interface GameState {
     minValue: number,
     midValue: number
   }
-    // 難易度
+  // 難易度
   difficulty: number
-    // アニメーションの状態
+  // アニメーションの状態
   animation: {isStartPointEffect: boolean}
-    // 投了ダイアログ
+  // 投了ダイアログ
   isOpenResignDialog: boolean
 }
 
